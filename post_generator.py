@@ -62,16 +62,16 @@ def apply_style_to_generate_text(style, seed):
 - キーワード: {seed}
 """
     try:
-        response = openai.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "あなたはババァ風ポエム構文破壊AIです"},
-                {"role": "user", "content": prompt.strip()}
-            ],
-            temperature=1.2,
-            max_tokens=160
-        )
-        return response.choices[0].message.content.strip()
+        response = openai.ChatCompletion.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": "あなたはババァ風ポエム構文破壊AIです"},
+        {"role": "user", "content": prompt.strip()}
+    ],
+    temperature=1.2,
+    max_tokens=160
+)
+return response['choices'][0]['message']['content'].strip()
     except Exception as e:
         print(f"OpenAI error: {e}")
         return None
