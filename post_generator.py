@@ -2,7 +2,7 @@ import random
 import json
 import os
 from datetime import datetime
-import openai  # ← こちらでOK
+import openai
 
 from utils.validate_post import is_valid_post
 from utils.format_utils import trim_text
@@ -25,8 +25,11 @@ def get_unused_styles():
                 data = json.load(f)
                 if isinstance(data, list):
                     used_ids = set(data)
+                elif isinstance(data, dict):
+                    print("⚠️ style_usage.json の内容が dict です。list 形式に修正してください。")
+                    used_ids = set(data.values())
                 else:
-                    print("⚠️ style_usage.json の内容が list ではありません。初期化してください。")
+                    print("⚠️ style_usage.json の形式が不正です。初期化してください。")
         except Exception as e:
             print(f"⚠️ style_usage.json 読み込みエラー: {e}")
     return [style for style in styles if style["id"] not in used_ids]
@@ -34,16 +37,18 @@ def get_unused_styles():
 def mark_style_used(style_id):
     used = []
     if os.path.exists(STYLE_USAGE_PATH):
-        with open(STYLE_USAGE_PATH, "r", encoding="utf-8") as f:
-            try:
+        try:
+            with open(STYLE_USAGE_PATH, "r", encoding="utf-8") as f:
                 loaded = json.load(f)
                 if isinstance(loaded, list):
                     used = loaded
                 elif isinstance(loaded, dict):
+                    print("⚠️ style_usage.json の内容が dict です。list に変換します。")
                     used = list(loaded.values())
-            except Exception as e:
-                print(f"⚠️ style_usage.json 読み込みエラー: {e}")
-    used.append(style_id)
+        except Exception as e:
+            print(f"⚠️ style_usage.json 読み込みエラー: {e}")
+    if style_id not in used:
+        used.append(style_id)
     with open(STYLE_USAGE_PATH, "w", encoding="utf-8") as f:
         json.dump(used, f, ensure_ascii=False, indent=2)
 
@@ -63,15 +68,15 @@ def apply_style_to_generate_text(style, seed):
 """
     try:
         response = openai.ChatCompletion.create(
-    model="gpt-4",
-    messages=[
-        {"role": "system", "content": "あなたはババァ風ポエム構文破壊AIです"},
-        {"role": "user", "content": prompt.strip()}
-    ],
-    temperature=1.2,
-    max_tokens=160
-)
-return response['choices'][0]['message']['content'].strip()
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "あなたはババァ風ポエム構文破壊AIです"},
+                {"role": "user", "content": prompt.strip()}
+            ],
+            temperature=1.2,
+            max_tokens=160
+        )
+        return response['choices'][0]['message']['content'].strip()
     except Exception as e:
         print(f"OpenAI error: {e}")
         return None
