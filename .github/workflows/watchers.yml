@@ -1,3 +1,10 @@
+name: Run Babaa Watchers
+
+on:
+  workflow_dispatch:
+  # 定期実行も可能（例：1時間ごと）
+  # schedule:
+  #   - cron: '0 * * * *'
 
 jobs:
   run_watchers:
