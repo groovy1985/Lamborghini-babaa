@@ -1,25 +1,20 @@
 import random
 import json
 import os
+from datetime import datetime
+import openai
+
+from utils.validate_post import is_valid_post
+from utils.format_utils import trim_text
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 style_path = os.path.join(base_dir, "babaa_styles.json")
-
-with open(style_path, "r", encoding="utf-8") as f:
-    styles = json.load(f)
-
-import openai
-from utils.validate_post import is_valid_post
-from utils.format_utils import trim_text
-from datetime import datetime
+STYLE_USAGE_PATH = os.path.join(base_dir, "logs/style_usage.json")
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# スタイル定義読み込み
-with open("babaa_styles.json", "r", encoding="utf-8") as f:
+with open(style_path, "r", encoding="utf-8") as f:
     styles = json.load(f)
-
-STYLE_USAGE_PATH = "logs/style_usage.json"
 
 def get_unused_styles():
     if os.path.exists(STYLE_USAGE_PATH):
@@ -60,7 +55,7 @@ def apply_style_to_generate_text(style, seed):
                 {"role": "system", "content": "あなたはババァ風ポエム構文破壊AIです"},
                 {"role": "user", "content": prompt.strip()}
             ],
-            temperature=1.1,
+            temperature=1.2,
             max_tokens=160
         )
         return response.choices[0].message["content"].strip()
@@ -79,6 +74,11 @@ def generate_babaa_post():
         seed = random.choice(["粉", "鹿", "黙り", "パウダー", "遺言", "昼寝", "冷蔵庫", "軋み", "カーテン"])
         print(f"🔁 スタイル: {style['label']}｜キーワード: {seed}")
         post = apply_style_to_generate_text(style, seed)
+
+        # 新たに追加：生成内容を常に出力
+        if post:
+            print(f"📝 生成内容:\n{post}\n")
+
         if post and is_valid_post(post):
             post = trim_text(post)
             mark_style_used(style["id"])
