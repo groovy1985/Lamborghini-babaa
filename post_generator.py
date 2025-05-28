@@ -1,76 +1,87 @@
-# post_generator.py
-
 import random
-from datetime import datetime
-from styles.babaa_styles import get_random_style
-from tag_generator import generate_tags
-from evaluate_kz import evaluate_kz
-from utils.validate_post import is_valid_post
 import json
 import os
+import openai
+from utils.validate_post import is_valid_post
+from utils.format_utils import trim_text
+from datetime import datetime
 
-MAX_LENGTH = 140
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def generate_babaa_post():
-    style = get_random_style()
-    seed = random.randint(100000, 999999)
+# スタイル定義読み込み
+with open("babaa_styles.json", "r", encoding="utf-8") as f:
+    styles = json.load(f)
 
-    # スタイルに基づいて喋り生成（プレースホルダ）
-    post = apply_style_to_generate_text(style, seed)
+STYLE_USAGE_PATH = "logs/style_usage.json"
 
-    if len(post) > MAX_LENGTH or not is_valid_post(post):
-        return None  # 冷却対象
+def get_unused_styles():
+    if os.path.exists(STYLE_USAGE_PATH):
+        with open(STYLE_USAGE_PATH, "r", encoding="utf-8") as f:
+            used_ids = set(json.load(f))
+    else:
+        used_ids = set()
+    return [style for style in styles if style["id"] not in used_ids]
 
-    tags = generate_tags(post)
-    kz_score = evaluate_kz(post)
-
-    if kz_score < 91:
-        return None  # 冷却対象
-
-    result = {
-        "text": post,
-        "tags": tags,
-        "kz_score": kz_score,
-        "timestamp": datetime.now().isoformat(),
-        "style_id": style["style_id"]
-    }
-
-    save_post(result)
-    return result
-
+def mark_style_used(style_id):
+    if os.path.exists(STYLE_USAGE_PATH):
+        with open(STYLE_USAGE_PATH, "r", encoding="utf-8") as f:
+            used = json.load(f)
+    else:
+        used = []
+    used.append(style_id)
+    with open(STYLE_USAGE_PATH, "w", encoding="utf-8") as f:
+        json.dump(used, f, ensure_ascii=False, indent=2)
 
 def apply_style_to_generate_text(style, seed):
-    """スタイルに応じた喋り生成（仮実装）"""
-    random.seed(seed)
-    if style["style_id"] == "BA-0042":  # 呼びかけ逸脱型
-        a = random.choice(["ねえ、起きてる？", "さっきの話、まだ続いてる？"])
-        b = random.choice(["でも冷蔵庫が怒ってたのよ", "だけど雨って名前だったでしょ"])
-        return f"{a}\n{b}"
-    else:
-        return f"昔の夢がまだ乾いてないのよねぇ。昨日の指輪が冷蔵庫にいたし。"
+    prompt = f"""
+あなたは高齢女性の人格を持つポエム生成機です。
+以下のスタイルに従い、再構成不可能な構文崩壊系ポストを生成してください。
 
+スタイル: {style['label']}（{style['structure']}）
+特徴: {style['notes']}
 
-def save_post(post_data):
-    archive_path = "logs/post_archive.json"
-    os.makedirs("logs", exist_ok=True)
+条件:
+- 140文字以内
+- 再構成・要約・感想を拒否
+- 明確な意味を避ける
+- キーワード: {seed}
+"""
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "あなたはババァ風ポエム構文破壊AIです"},
+                {"role": "user", "content": prompt.strip()}
+            ],
+            temperature=1.1,
+            max_tokens=160
+        )
+        return response.choices[0].message["content"].strip()
+    except Exception as e:
+        print(f"OpenAI error: {e}")
+        return None
 
-    if os.path.exists(archive_path):
-        with open(archive_path, "r", encoding="utf-8") as f:
-            archive = json.load(f)
-    else:
-        archive = []
+def generate_babaa_post():
+    unused_styles = get_unused_styles()
+    if not unused_styles:
+        print("⚠️ 使用可能なスタイルが残っていません")
+        return None
 
-    archive.append(post_data)
+    random.shuffle(unused_styles)
+    for style in unused_styles:
+        seed = random.choice(["粉", "鹿", "黙り", "パウダー", "遺言", "昼寝", "冷蔵庫", "軋み", "カーテン"])
+        print(f"🔁 スタイル: {style['label']}｜キーワード: {seed}")
+        post = apply_style_to_generate_text(style, seed)
+        if post and is_valid_post(post):
+            post = trim_text(post)
+            mark_style_used(style["id"])
+            return {
+                "text": post,
+                "tags": [f"#{style['label']}", "#構文爆撃ババァ"],
+                "style_id": style["id"],
+                "timestamp": datetime.now().isoformat()
+            }
+        else:
+            print("❌ 投稿冷却／生成失敗")
 
-    with open(archive_path, "w", encoding="utf-8") as f:
-        json.dump(archive, f, indent=2, ensure_ascii=False)
-
-
-if __name__ == "__main__":
-    result = generate_babaa_post()
-    if result:
-        print("✅ Generated post:")
-        print(result["text"])
-        print("Tags:", " ".join(result["tags"]))
-    else:
-        print("❌ 冷却：投稿基準未達")
+    return None
