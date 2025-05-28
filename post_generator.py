@@ -2,12 +2,13 @@ import random
 import json
 import os
 from datetime import datetime
-from openai import OpenAI
+import openai  # ← こちらでOK
+
 from utils.validate_post import is_valid_post
 from utils.format_utils import trim_text
 
-# APIクライアントの初期化
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# APIキー設定
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 style_path = os.path.join(base_dir, "babaa_styles.json")
@@ -17,21 +18,31 @@ with open(style_path, "r", encoding="utf-8") as f:
     styles = json.load(f)
 
 def get_unused_styles():
+    used_ids = set()
     if os.path.exists(STYLE_USAGE_PATH):
         with open(STYLE_USAGE_PATH, "r", encoding="utf-8") as f:
-            used = json.load(f)  # ← used が辞書になっている可能性
-    else:
-         used = []
-    used.append(style_id)  # ← dictには append は存在しない
-
+            try:
+                loaded = json.load(f)
+                if isinstance(loaded, list):
+                    used_ids = set(loaded)
+                elif isinstance(loaded, dict):
+                    used_ids = set(loaded.values())
+            except Exception as e:
+                print(f"⚠️ style_usage.json 読み込みエラー: {e}")
     return [style for style in styles if style["id"] not in used_ids]
 
 def mark_style_used(style_id):
+    used = []
     if os.path.exists(STYLE_USAGE_PATH):
         with open(STYLE_USAGE_PATH, "r", encoding="utf-8") as f:
-            used = json.load(f)
-    else:
-        used = []
+            try:
+                loaded = json.load(f)
+                if isinstance(loaded, list):
+                    used = loaded
+                elif isinstance(loaded, dict):
+                    used = list(loaded.values())
+            except Exception as e:
+                print(f"⚠️ style_usage.json 読み込みエラー: {e}")
     used.append(style_id)
     with open(STYLE_USAGE_PATH, "w", encoding="utf-8") as f:
         json.dump(used, f, ensure_ascii=False, indent=2)
@@ -51,7 +62,7 @@ def apply_style_to_generate_text(style, seed):
 - キーワード: {seed}
 """
     try:
-        response = client.chat.completions.create(
+        response = openai.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "あなたはババァ風ポエム構文破壊AIです"},
