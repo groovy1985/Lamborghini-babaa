@@ -1,37 +1,107 @@
 [
   {
-    "style_id": "BA-0042",
-    "description": "呼びかけ逸脱型（質問と答えが噛み合わない）",
-    "must_include": ["対話", "断絶", "再解釈不能"],
-    "avoid": ["論理接続"],
-    "status": "active"
+    "id": "style001",
+    "label": "空虚な励まし",
+    "structure": "独白 → 詠嘆 → 擬態語 → 無意味な帰結",
+    "notes": "昭和口調。オチが消える。",
+    "used": false
   },
   {
-    "style_id": "BA-0051",
-    "description": "季節誤認型（時間と季節を正しく扱えない）",
-    "must_include": ["時間崩壊", "気候錯誤"],
-    "avoid": ["時系列整合"],
-    "status": "active"
+    "id": "style002",
+    "label": "うわの空対話",
+    "structure": "会話形式（ズレ）→意味の迷子→放置系結末",
+    "notes": "誰も答えないが誰も怒らない形式。断絶感あり。",
+    "used": false
   },
   {
-    "style_id": "BA-0029",
-    "description": "無音幻聴型（誰もいないのに喋る）",
-    "must_include": ["独白", "返事のない会話"],
-    "avoid": ["相互成立"],
-    "status": "active"
+    "id": "style003",
+    "label": "精神科的実況",
+    "structure": "実況 → 錯乱語 → 笑い声 → 音の途切れ",
+    "notes": "ババァの自白＋テレビの声などが交差",
+    "used": false
   },
   {
-    "style_id": "BA-0037",
-    "description": "意味溶解型（文章として成立しない）",
-    "must_include": ["崩壊語尾", "関係性の喪失"],
-    "avoid": ["一貫性"],
-    "status": "active"
+    "id": "style004",
+    "label": "福袋的文章",
+    "structure": "名詞連打 → 援用句 → 途中で破綻",
+    "notes": "詰め込んだあと沈黙させる。選語の雑さが鍵。",
+    "used": false
   },
   {
-    "style_id": "BA-0013",
-    "description": "古代誤説型（歴史や常識の誤読）",
-    "must_include": ["間違った引用", "正しくない思い出"],
-    "avoid": ["史実", "知識体系"],
-    "status": "active"
+    "id": "style005",
+    "label": "裏声独唱",
+    "structure": "歌詞風 → 水分語 → 時間の消失 → 変調",
+    "notes": "メロディを持ってたが途中で忘れた印象を残す",
+    "used": false
+  },
+  {
+    "id": "style006",
+    "label": "仏壇の奥のニュース",
+    "structure": "静謐な語り → 日常 → 死語 → 異音の挿入",
+    "notes": "死者との会話に突然ラジオが混ざるような構成",
+    "used": false
+  },
+  {
+    "id": "style007",
+    "label": "縁側メタ構文",
+    "structure": "メタ発言 → 方言 → 世迷い言 → 消滅",
+    "notes": "自分が語っていることを忘れるリズムが必要",
+    "used": false
+  },
+  {
+    "id": "style008",
+    "label": "漬物感情劇",
+    "structure": "食材名 → 感情語 → 擬人化 → 呆然",
+    "notes": "調味料で怒りを表し、冷蔵庫の音で終わる",
+    "used": false
+  },
+  {
+    "id": "style009",
+    "label": "手芸クラブ未遂",
+    "structure": "始まりそうで始まらない話 → 実体不明 →放棄",
+    "notes": "やろうとした記録だけが残る失敗形式",
+    "used": false
+  },
+  {
+    "id": "style010",
+    "label": "風呂場ミュージカル",
+    "structure": "歌風 → 湯気 → 過去 → 水音で切断",
+    "notes": "ババァの回想劇が排水音に飲まれる",
+    "used": false
+  },
+  {
+    "id": "style011",
+    "label": "通報できないモノローグ",
+    "structure": "ぼそぼそ → 軽い自白 → 一人合点 → 間",
+    "notes": "一線を越えない範囲での崩壊寸前語り",
+    "used": false
+  },
+  {
+    "id": "style012",
+    "label": "スーパーの棚での反省",
+    "structure": "日用品 → 倫理 → 値札の失言 → 空白",
+    "notes": "一瞬の商品棚が人生の断層になる構成",
+    "used": false
+  },
+  {
+    "id": "style013",
+    "label": "半透明の言い訳",
+    "structure": "軽めの否定 → 失敗談 → 笑い声 → 自責",
+    "notes": "自分にしか通じない弁解で着地",
+    "used": false
+  },
+  {
+    "id": "style014",
+    "label": "会話未満の湿気",
+    "structure": "助詞ばかり → ためらい → 噛み合わない語尾",
+    "notes": "会話として成立しないリズム重視",
+    "used": false
+  },
+  {
+    "id": "style015",
+    "label": "未来に向かない予言",
+    "structure": "預言風 → 未来語句 → 古語混入 → 保留",
+    "notes": "予言らしさを壊す構造。最後が語られない",
+    "used": false
   }
 ]
