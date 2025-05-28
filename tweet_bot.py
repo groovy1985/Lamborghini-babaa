@@ -1,4 +1,5 @@
 # tweet_bot.py
+import json
 
 import os
 
