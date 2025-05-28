@@ -26,10 +26,9 @@ def get_unused_styles():
                 if isinstance(data, list):
                     used_ids = set(data)
                 else:
-                    print("⚠️ style_usage.json の内容が不正です（list ではありません）")
+                    print("⚠️ style_usage.json の内容が list ではありません。初期化してください。")
         except Exception as e:
             print(f"⚠️ style_usage.json 読み込みエラー: {e}")
-            used_ids = set()
     return [style for style in styles if style["id"] not in used_ids]
 
 def mark_style_used(style_id):
