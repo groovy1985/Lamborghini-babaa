@@ -1,3 +1,9 @@
+name: Generate Weekly Note
+
+on:
+  schedule:
+    - cron: "0 2 * * MON"  # 毎週月曜JST朝11時に実行（UTC+9）
+  workflow_dispatch:        # 手動実行も可
 
 jobs:
   generate_weekly_note:
@@ -38,4 +44,3 @@ jobs:
           else
             git commit -m "Auto: Weekly Babaa note summary"
             git push
-          fi
