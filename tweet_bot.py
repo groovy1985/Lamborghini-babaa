@@ -21,8 +21,11 @@ client = tweepy.Client(
 
 def post_to_twitter(post):
     text = f"{post['text']}\n{' '.join(post['tags'])}"
-    response = client.create_tweet(text=text)
-    print(f"✅ 投稿成功: {response.data}")
+    try:
+        response = client.create_tweet(text=text)
+        print(f"✅ 投稿成功: {response.data}")
+    except Exception as e:
+        print(f"❌ Twitter投稿失敗: {e}")
 
 if __name__ == "__main__":
     count = 0
