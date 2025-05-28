@@ -1,0 +1,37 @@
+[
+  {
+    "style_id": "BA-0042",
+    "description": "呼びかけ逸脱型（質問と答えが噛み合わない）",
+    "must_include": ["対話", "断絶", "再解釈不能"],
+    "avoid": ["論理接続"],
+    "status": "active"
+  },
+  {
+    "style_id": "BA-0051",
+    "description": "季節誤認型（時間と季節を正しく扱えない）",
+    "must_include": ["時間崩壊", "気候錯誤"],
+    "avoid": ["時系列整合"],
+    "status": "active"
+  },
+  {
+    "style_id": "BA-0029",
+    "description": "無音幻聴型（誰もいないのに喋る）",
+    "must_include": ["独白", "返事のない会話"],
+    "avoid": ["相互成立"],
+    "status": "active"
+  },
+  {
+    "style_id": "BA-0037",
+    "description": "意味溶解型（文章として成立しない）",
+    "must_include": ["崩壊語尾", "関係性の喪失"],
+    "avoid": ["一貫性"],
+    "status": "active"
+  },
+  {
+    "style_id": "BA-0013",
+    "description": "古代誤説型（歴史や常識の誤読）",
+    "must_include": ["間違った引用", "正しくない思い出"],
+    "avoid": ["史実", "知識体系"],
+    "status": "active"
+  }
+]
