@@ -1,6 +1,13 @@
 # tweet_bot.py
 
 import os
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+style_path = os.path.join(base_dir, "babaa_styles.json")
+
+with open(style_path, "r", encoding="utf-8") as f:
+    styles = json.load(f)
+
 import time
 import tweepy
 from post_generator import generate_babaa_post
