@@ -1,9 +1,6 @@
 name: Monthly Babaa ZINE Summary
 
-on:
-  schedule:
-    - cron: "0 14 28-31 * *"  # 月末23:00 JST（UTC+9）で28～31日に実行（28日に1回走ればOK）
-  workflow_dispatch:
+
 
 jobs:
   generate_monthly_zine:
