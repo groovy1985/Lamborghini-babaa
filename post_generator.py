@@ -20,15 +20,16 @@ with open(style_path, "r", encoding="utf-8") as f:
 def get_unused_styles():
     used_ids = set()
     if os.path.exists(STYLE_USAGE_PATH):
-        with open(STYLE_USAGE_PATH, "r", encoding="utf-8") as f:
-            try:
-                loaded = json.load(f)
-                if isinstance(loaded, list):
-                    used_ids = set(loaded)
-                elif isinstance(loaded, dict):
-                    used_ids = set(loaded.values())
-            except Exception as e:
-                print(f"⚠️ style_usage.json 読み込みエラー: {e}")
+        try:
+            with open(STYLE_USAGE_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    used_ids = set(data)
+                else:
+                    print("⚠️ style_usage.json の内容が不正です（list ではありません）")
+        except Exception as e:
+            print(f"⚠️ style_usage.json 読み込みエラー: {e}")
+            used_ids = set()
     return [style for style in styles if style["id"] not in used_ids]
 
 def mark_style_used(style_id):
