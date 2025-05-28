@@ -3,20 +3,20 @@ import time
 import tweepy
 from post_generator import generate_babaa_post
 
-# Bearer Token + OAuth 2.0 認証情報（XのDeveloper Portalから取得）
+# 認証情報（.env または GitHub Secrets）
 BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
-CONSUMER_KEY = os.getenv("TWITTER_API_KEY")
-CONSUMER_SECRET = os.getenv("TWITTER_API_SECRET")
+API_KEY = os.getenv("TWITTER_API_KEY")
+API_SECRET = os.getenv("TWITTER_API_SECRET")
 ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN")
-ACCESS_TOKEN_SECRET = os.getenv("TWITTER_ACCESS_SECRET")
+ACCESS_SECRET = os.getenv("TWITTER_ACCESS_SECRET")
 
-# Tweepy v2 用クライアント生成
+# v2 クライアント初期化（これが重要）
 client = tweepy.Client(
     bearer_token=BEARER_TOKEN,
-    consumer_key=CONSUMER_KEY,
-    consumer_secret=CONSUMER_SECRET,
+    consumer_key=API_KEY,
+    consumer_secret=API_SECRET,
     access_token=ACCESS_TOKEN,
-    access_token_secret=ACCESS_TOKEN_SECRET
+    access_token_secret=ACCESS_SECRET
 )
 
 def post_to_twitter(post):
