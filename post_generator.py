@@ -56,32 +56,35 @@ def mark_style_used(style_id):
             json.dump(used, f, ensure_ascii=False, indent=2)
 
 def select_seed(style):
-    return random.choice(["粉", "鹿", "黙り", "パウダー", "遺言", "昼寝", "軋み", "カーテン"])
+    return random.choice(["粉", "鹿", "黙り", "パウダー", "遺言", "昼寝", "冷蔵庫", "軋み", "カーテン"])
 
 def apply_style_to_generate_text(style, seed):
     prompt = f"""
-あなたは高齢女性の人格を持つ構文破壊AIです。
-以下のスタイルに従い、語りかけ未遂・再構成不能な吊り構文を生成してください。
+あなたは高齢女性の人格を持つ構文爆撃Botです。
+以下のスタイルに従い、「再構成不可能なポスト」を生成してください。
 
-スタイル: {style['label']}（{style['structure']}）
-特徴: {style['notes']}
+🪓 条件：
+・明確な意味を避けるが、文字列としての読解は可能
+・日本語の語順・助詞・終端部に微ズレを含む
+・文法的完結を故意に回避
+・会話として成立しない／理解に“揺れ”がある
+・記号や多言語をノイズ的に混入させない
 
-条件:
-- 140文字以内
-- 再構成・要約・感想を拒否（感想を誘発しない）
-- 会話文や意味成立を避ける（途中で止まる言い回し）
-- 拍のズレ／音の沈み／語尾の気配のみを残す
-- キーワード: {seed}
+🧵 スタイル: {style['label']}（{style['structure']}）
+💬 キーワード: {seed}
+🗒️ 特徴: {style['notes']}
+
+140文字以内で、詩のように生成してください。
 """.strip()
 
     try:
         response = openai.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "あなたは意味生成を拒否する構文爆撃ババァです。"},
+                {"role": "system", "content": "あなたはババァ風ポエム構文破壊AIです"},
                 {"role": "user", "content": prompt}
             ],
-            temperature=1.3,
+            temperature=1.2,
             max_tokens=160
         )
         return response.choices[0].message.content.strip()
