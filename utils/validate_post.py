@@ -11,3 +11,10 @@ def is_reconstructable(text: str) -> bool:
     if len(text.split()) < 5:
         return True
     return False
+
+def is_too_meaningful(text: str) -> bool:
+    """
+    意味性が強すぎる文のフィルター
+    """
+    direct_meanings = ["人生", "愛", "正義", "自由", "希望"]
+    return any(word in text for word in direct_meanings)
