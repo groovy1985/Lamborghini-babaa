@@ -2,7 +2,7 @@ name: Daily Babaa Tweet
 
 on:
   schedule:
-    - cron: "0 2 * * *"  # 毎日11:00 JST（日本時間）
+    - cron: "0 2 * * *"  # JST 11:00（毎日投稿）
   workflow_dispatch:  # 手動実行も可能
 
 jobs:
@@ -20,10 +20,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-         pip install --upgrade pip
-         pip install -r requirements.txt
-
-
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Set environment variables
         run: |
@@ -32,6 +30,7 @@ jobs:
           echo "TWITTER_API_SECRET=${{ secrets.TWITTER_API_SECRET }}" >> $GITHUB_ENV
           echo "TWITTER_ACCESS_TOKEN=${{ secrets.TWITTER_ACCESS_TOKEN }}" >> $GITHUB_ENV
           echo "TWITTER_ACCESS_SECRET=${{ secrets.TWITTER_ACCESS_SECRET }}" >> $GITHUB_ENV
+          echo "TWITTER_BEARER_TOKEN=${{ secrets.TWITTER_BEARER_TOKEN }}" >> $GITHUB_ENV
 
       - name: Generate and Post Babaa Tweets (5 times)
         run: python tweet_bot.py
