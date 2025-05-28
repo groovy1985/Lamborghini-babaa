@@ -19,9 +19,11 @@ with open(style_path, "r", encoding="utf-8") as f:
 def get_unused_styles():
     if os.path.exists(STYLE_USAGE_PATH):
         with open(STYLE_USAGE_PATH, "r", encoding="utf-8") as f:
-            used_ids = set(json.load(f))
+            used = json.load(f)  # ← used が辞書になっている可能性
     else:
-        used_ids = set()
+         used = []
+    used.append(style_id)  # ← dictには append は存在しない
+
     return [style for style in styles if style["id"] not in used_ids]
 
 def mark_style_used(style_id):
