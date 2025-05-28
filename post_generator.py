@@ -2,16 +2,16 @@ import random
 import json
 import os
 from datetime import datetime
-import openai
-
+from openai import OpenAI
 from utils.validate_post import is_valid_post
 from utils.format_utils import trim_text
+
+# APIクライアントの初期化
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 style_path = os.path.join(base_dir, "babaa_styles.json")
 STYLE_USAGE_PATH = os.path.join(base_dir, "logs/style_usage.json")
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 with open(style_path, "r", encoding="utf-8") as f:
     styles = json.load(f)
@@ -49,7 +49,7 @@ def apply_style_to_generate_text(style, seed):
 - キーワード: {seed}
 """
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "あなたはババァ風ポエム構文破壊AIです"},
@@ -58,7 +58,7 @@ def apply_style_to_generate_text(style, seed):
             temperature=1.2,
             max_tokens=160
         )
-        return response.choices[0].message["content"].strip()
+        return response.choices[0].message.content.strip()
     except Exception as e:
         print(f"OpenAI error: {e}")
         return None
@@ -75,7 +75,6 @@ def generate_babaa_post():
         print(f"🔁 スタイル: {style['label']}｜キーワード: {seed}")
         post = apply_style_to_generate_text(style, seed)
 
-        # 新たに追加：生成内容を常に出力
         if post:
             print(f"📝 生成内容:\n{post}\n")
 
