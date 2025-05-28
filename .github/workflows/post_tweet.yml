@@ -1,9 +1,6 @@
 name: Daily Babaa Tweet
 
-on:
-  schedule:
-    - cron: "0 2 * * *"  # JST 11:00（毎日投稿）
-  workflow_dispatch:  # 手動実行も可能
+
 
 jobs:
   babaa_tweet:
