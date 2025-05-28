@@ -1,5 +1,6 @@
 [
   {
+    "style_id": "BA-0001",
     "id": "style001",
     "label": "空虚な励まし",
     "structure": "独白 → 詠嘆 → 擬態語 → 無意味な帰結",
@@ -7,6 +8,7 @@
     "used": false
   },
   {
+    "style_id": "BA-0002",
     "id": "style002",
     "label": "うわの空対話",
     "structure": "会話形式（ズレ）→意味の迷子→放置系結末",
@@ -14,6 +16,7 @@
     "used": false
   },
   {
+    "style_id": "BA-0003",
     "id": "style003",
     "label": "精神科的実況",
     "structure": "実況 → 錯乱語 → 笑い声 → 音の途切れ",
@@ -21,6 +24,7 @@
     "used": false
   },
   {
+    "style_id": "BA-0004",
     "id": "style004",
     "label": "福袋的文章",
     "structure": "名詞連打 → 援用句 → 途中で破綻",
@@ -28,6 +32,7 @@
     "used": false
   },
   {
+    "style_id": "BA-0005",
     "id": "style005",
     "label": "裏声独唱",
     "structure": "歌詞風 → 水分語 → 時間の消失 → 変調",
@@ -35,6 +40,7 @@
     "used": false
   },
   {
+    "style_id": "BA-0006",
     "id": "style006",
     "label": "仏壇の奥のニュース",
     "structure": "静謐な語り → 日常 → 死語 → 異音の挿入",
@@ -42,6 +48,7 @@
     "used": false
   },
   {
+    "style_id": "BA-0007",
     "id": "style007",
     "label": "縁側メタ構文",
     "structure": "メタ発言 → 方言 → 世迷い言 → 消滅",
@@ -49,6 +56,7 @@
     "used": false
   },
   {
+    "style_id": "BA-0008",
     "id": "style008",
     "label": "漬物感情劇",
     "structure": "食材名 → 感情語 → 擬人化 → 呆然",
@@ -56,6 +64,7 @@
     "used": false
   },
   {
+    "style_id": "BA-0009",
     "id": "style009",
     "label": "手芸クラブ未遂",
     "structure": "始まりそうで始まらない話 → 実体不明 →放棄",
@@ -63,6 +72,7 @@
     "used": false
   },
   {
+    "style_id": "BA-00010",
     "id": "style010",
     "label": "風呂場ミュージカル",
     "structure": "歌風 → 湯気 → 過去 → 水音で切断",
@@ -70,6 +80,7 @@
     "used": false
   },
   {
+    "style_id": "BA-0011",
     "id": "style011",
     "label": "通報できないモノローグ",
     "structure": "ぼそぼそ → 軽い自白 → 一人合点 → 間",
@@ -77,6 +88,7 @@
     "used": false
   },
   {
+    "style_id": "BA-0012",
     "id": "style012",
     "label": "スーパーの棚での反省",
     "structure": "日用品 → 倫理 → 値札の失言 → 空白",
@@ -84,6 +96,7 @@
     "used": false
   },
   {
+    "style_id": "BA-00013",
     "id": "style013",
     "label": "半透明の言い訳",
     "structure": "軽めの否定 → 失敗談 → 笑い声 → 自責",
@@ -91,6 +104,7 @@
     "used": false
   },
   {
+    "style_id": "BA-00014",
     "id": "style014",
     "label": "会話未満の湿気",
     "structure": "助詞ばかり → ためらい → 噛み合わない語尾",
@@ -98,6 +112,7 @@
     "used": false
   },
   {
+    "style_id": "BA-00015",
     "id": "style015",
     "label": "未来に向かない予言",
     "structure": "預言風 → 未来語句 → 古語混入 → 保留",
