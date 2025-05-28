@@ -1,9 +1,3 @@
-name: Babaa Watchers (Cemetery / Lastwords / Note)
-
-on:
-  schedule:
-    - cron: "0 */6 * * *"  # 6時間ごと（JSTでは9:00, 15:00, 21:00, 3:00）
-  workflow_dispatch:  # 手動実行も可能
 
 jobs:
   run_watchers:
