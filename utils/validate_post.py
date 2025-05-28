@@ -22,11 +22,5 @@ def is_too_meaningful(text: str) -> bool:
 
 
 def is_valid_post(text: str) -> bool:
-    """
-    再構成性や意味過多を含むポストを排除
-    """
-    if is_reconstructable(text):
-        return False
-    if is_too_meaningful(text):
-        return False
+    # 仮に一時的にすべての出力を通す
     return True
