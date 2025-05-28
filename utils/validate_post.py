@@ -12,9 +12,21 @@ def is_reconstructable(text: str) -> bool:
         return True
     return False
 
+
 def is_too_meaningful(text: str) -> bool:
     """
     意味性が強すぎる文のフィルター
     """
     direct_meanings = ["人生", "愛", "正義", "自由", "希望"]
     return any(word in text for word in direct_meanings)
+
+
+def is_valid_post(text: str) -> bool:
+    """
+    再構成性や意味過多を含むポストを排除
+    """
+    if is_reconstructable(text):
+        return False
+    if is_too_meaningful(text):
+        return False
+    return True
