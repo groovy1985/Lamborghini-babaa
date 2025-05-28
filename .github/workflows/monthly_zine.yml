@@ -1,4 +1,10 @@
+name: Generate Monthly Babaa ZINE
 
+on:
+  workflow_dispatch:
+  # 任意でスケジュール実行を追加する場合はこちらを有効化
+  # schedule:
+  #   - cron: '0 2 1 * *'  # JSTで毎月1日11時に実行（UTC 2:00）
 
 jobs:
   generate_monthly_zine:
