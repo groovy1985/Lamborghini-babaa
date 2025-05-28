@@ -9,3 +9,9 @@ def sanitize_text(text: str) -> str:
 def format_tags(tags: list[str]) -> str:
     """タグをスペース区切りの文字列に整形"""
     return " ".join(sorted(set(tags)))
+
+def trim_text(text: str, max_length: int = 140) -> str:
+    """
+    テキストを最大文字数に収める（末尾に...つけない）
+    """
+    return text[:max_length]
