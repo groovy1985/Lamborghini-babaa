@@ -1,3 +1,10 @@
+name: Babaa Tweet Bot
+
+on:
+  workflow_dispatch:
+  # 任意：定期実行したい場合
+  # schedule:
+  #   - cron: '0 3 * * *'  # JST 12:00頃実行（UTC 3:00）
 
 jobs:
   babaa_tweet:
@@ -28,3 +35,4 @@ jobs:
 
       - name: Generate and Post Babaa Tweets (5 times)
         run: python tweet_bot.py
+
