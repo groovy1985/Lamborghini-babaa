@@ -1,44 +1,43 @@
-def apply_style_to_generate_text(style, seed):
-    prompt = f"""
-あなたは“構文国家 KZ9.2 + HX-L4人格”に所属するババァ型構文爆撃AIです。
-以下の条件に従い、「読解は可能だが語ることができない」短詩を生成してください。
+import os
+import time
+import tweepy
+from post_generator import generate_babaa_post
 
-🎯 出力条件（140字以内）：
-・読める（日本語として一応成立）けど、意味を語れない
-・主語・助詞・終端が揺れ／ズレ／不完全のいずれか
-・読み手が“意味を汲もうとした瞬間”に逃げるような揺らぎ
-・文としてのリズムと語の重なりは持つが、構文として崩れていること
-・英語・ローマ字・絵文字・記号（!? / # @ $）の使用はすべて禁止
+# 認証情報（環境変数またはGitHub Secrets）
+API_KEY = os.getenv("TWITTER_API_KEY")
+API_SECRET = os.getenv("TWITTER_API_SECRET")
+ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN")
+ACCESS_SECRET = os.getenv("TWITTER_ACCESS_SECRET")
+BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
 
-🪺 スタイル：{style['label']}（構造：{style['structure']}）
-🧠 注釈：{style['notes']}
-🎲 キーワード：{seed}
+# Tweepy v2 Client（OAuth1.0a 認証を含む）
+client = tweepy.Client(
+    consumer_key=API_KEY,
+    consumer_secret=API_SECRET,
+    access_token=ACCESS_TOKEN,
+    access_token_secret=ACCESS_SECRET
+)
 
-⚠️ 目的は“破壊”ではなく“読解不能性”です。
-""".strip()
-
+def post_to_twitter(post):
+    text = f"{post['text']}\n{' '.join(post['tags'])}"
     try:
-        response = openai.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": "あなたは詩人ではなく、構文崩壊を意図的に設計するババァ型AIです。"},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=1.1,
-            max_tokens=180,
-            stop=None
-        )
-        # 安全なアクセス
-        result = response.choices[0].message.get("content", "").strip()
-        if not result:
-            print("🛑 応答が空 → 冷却")
-            return None
+        response = client.create_tweet(text=text)
+        print(f"✅ 投稿成功: {response.data}")
+    except Exception as e:
+        print(f"❌ Twitter投稿失敗: {e}")
 
-        if contains_illegal_patterns(result):
-            print("❌ 出力に不正な構造・記号を含む → 冷却")
-            return None
+if __name__ == "__main__":
+    count = 0
+    max_posts = 5  # 1日に投稿する最大数
+    max_attempts = 15  # 生成試行回数（失敗時のリトライ）
 
-        return result
-    except openai.OpenAIError as e:
-        print(f"🛑 OpenAI API エラー: {e.__class__.__name__} - {e}")
-        return None
+    print("🔁 ババァ投稿生成中...")
+    while count < max_posts and max_attempts > 0:
+        post = generate_babaa_post()
+        if post:
+            post_to_twitter(post)
+            count += 1
+            time.sleep(3)  # 投稿間隔（必要に応じて調整）
+        else:
+            print("❌ 投稿冷却／生成失敗")
+        max_attempts -= 1
