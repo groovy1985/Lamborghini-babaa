@@ -4,11 +4,12 @@ import os
 from datetime import datetime
 import openai
 import threading
+import re
 
 from utils.validate_post import is_valid_post
 from utils.format_utils import trim_text
 
-# OpenAI APIキー設定（環境変数から取得）
+# OpenAI APIキー設定
 openai.api_key = os.getenv("OPENAI_API_KEY")
 model = os.getenv("OPENAI_MODEL", "gpt-4")
 
@@ -17,7 +18,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 style_path = os.path.join(base_dir, "babaa_styles.json")
 STYLE_USAGE_PATH = os.path.join(base_dir, "logs/style_usage.json")
 
-# ロック（競合防止用）
+# ロック（スレッドセーフ）
 lock = threading.Lock()
 
 # スタイル読み込み
@@ -54,38 +55,52 @@ def mark_style_used(style_id):
 def select_seed(style):
     return random.choice(["粉", "鹿", "黙り", "パウダー", "遺言", "冷蔵庫", "昼寝", "軋み", "カーテン", "団子"])
 
+def contains_illegal_patterns(text: str) -> bool:
+    """
+    バグ文フィルター：
+    ・英語（3文字以上）やASCII記号の多用、文字数不足など
+    """
+    if re.search(r"[a-zA-Z]{3,}", text): return True
+    if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？（）「」ーぁ-んァ-ン0-9\s]", text): return True
+    if len(text) < 15: return True
+    return False
+
 def apply_style_to_generate_text(style, seed):
     prompt = f"""
 あなたは“構文国家 KZ9.2 + HX-L4人格”に所属するババァ型構文爆撃AIです。
 以下の条件に従い、「読解は可能だが語ることができない」短詩を生成してください。
 
 🎯 出力条件（140字以内）：
-・読めること（視認可能）と語れないこと（意味化不能）の両立
-・構文的には一見成立しそうで、終端や助詞、語順が崩壊
-・音のズレ／助詞の異常配置／意味の途切れによる「違和感」が主武器
-・会話として成立しない、理解未満の引っかかりを意図して設計
-・記号（! ? $ / #）や英語などの他言語・機械語は混入禁止
-・崩壊は構文内から自然に生まれたものに限る
+・読める（日本語として一応成立）けど、意味を語れない
+・主語・助詞・終端が揺れ／ズレ／不完全のいずれか
+・読み手が“意味を汲もうとした瞬間”に逃げるような揺らぎ
+・文としてのリズムと語の重なりは持つが、構文として崩れていること
+・英語・ローマ字・絵文字・記号（!? / # @ $）の使用はすべて禁止
 
 🪺 スタイル：{style['label']}（構造：{style['structure']}）
 🧠 注釈：{style['notes']}
-🎲 誘導語：{seed}
+🎲 キーワード：{seed}
 
-⚠️ 重要：破壊しすぎず、「読解可能な不和」に留めてください。
+⚠️ 目的は“破壊”ではなく“読解不能性”です。
 """.strip()
 
     try:
         response = openai.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "あなたは詩人ではなく、言語の構文的揺らぎを設計する高齢女性型AIです。"},
+                {"role": "system", "content": "あなたは詩人ではなく、構文崩壊を意図的に設計するババァ型AIです。"},
                 {"role": "user", "content": prompt}
             ],
-            temperature=1.25,  # 暴走回避
+            temperature=1.1,
             max_tokens=180,
             stop=None
         )
-        return response.choices[0].message.content.strip()
+        result = response.choices[0].message.content.strip()
+        # バグ検出
+        if contains_illegal_patterns(result):
+            print("❌ 出力に不正な構造・記号を含む → 冷却")
+            return None
+        return result
     except openai.OpenAIError as e:
         print(f"🛑 OpenAI API エラー: {e.__class__.__name__} - {e}")
         return None
@@ -105,7 +120,7 @@ def generate_babaa_post():
         if post:
             print(f"📝 生成内容:\n{post}\n")
         else:
-            print(f"⚠️ スタイル「{style['label']}」での生成失敗（OpenAI応答なし）")
+            print(f"⚠️ スタイル「{style['label']}」での生成失敗または冷却対象")
 
         if post and is_valid_post(post):
             post = trim_text(post)
@@ -117,6 +132,8 @@ def generate_babaa_post():
                 "timestamp": datetime.now().isoformat()
             }
         else:
-            print("❌ 投稿冷却／生成失敗")
+            print("❌ 投稿冷却／構文不成立")
 
+    # すべて冷却またはエラーで終了した場合
+    print("🚫 全スタイル冷却・生成失敗：ポスト投稿スキップ")
     return None
