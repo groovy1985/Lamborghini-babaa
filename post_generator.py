@@ -58,7 +58,7 @@ def select_seed(style):
 def contains_illegal_patterns(text: str) -> bool:
     """
     バグ文フィルター：
-    ・英語（3文字以上）やASCII記号の多用、文字数不足など
+    ・機械語、英単語、記号の暴発検出
     """
     if re.search(r"[a-zA-Z]{3,}", text): return True
     if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？（）「」ーぁ-んァ-ン0-9\s]", text): return True
@@ -95,11 +95,17 @@ def apply_style_to_generate_text(style, seed):
             max_tokens=180,
             stop=None
         )
-        result = response.choices[0].message.content.strip()
-        # バグ検出
+        # 安全なアクセス
+        result = response.choices[0].message.get("content", "").strip()
+        if not result:
+            print("🛑 応答が空 → 冷却")
+            return None
+
         if contains_illegal_patterns(result):
             print("❌ 出力に不正な構造・記号を含む → 冷却")
             return None
+
+        print(f"✅ 正常出力: {result}")
         return result
     except openai.OpenAIError as e:
         print(f"🛑 OpenAI API エラー: {e.__class__.__name__} - {e}")
@@ -134,6 +140,5 @@ def generate_babaa_post():
         else:
             print("❌ 投稿冷却／構文不成立")
 
-    # すべて冷却またはエラーで終了した場合
     print("🚫 全スタイル冷却・生成失敗：ポスト投稿スキップ")
     return None
