@@ -1,9 +1,23 @@
+# OpenAI API & ChatGPT
 openai>=1.0.0
+
+# RSS解析
 feedparser>=6.0.10
+
+# 通常HTTP通信
 requests>=2.31.0
+
+# PDF生成
 fpdf>=1.7.2
+
+# Markdown→HTML変換
 markdown2>=2.4.10
+
+# 日付処理
 python-dateutil>=2.8.2
+
+# Twitter投稿用
 tweepy>=4.12.1
-openai
-python-dotenv
+
+# .env ロード
+python-dotenv>=1.0.1
