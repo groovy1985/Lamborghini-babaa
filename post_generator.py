@@ -60,9 +60,12 @@ def contains_illegal_patterns(text: str) -> bool:
     バグ文フィルター：
     ・機械語、英単語、記号の暴発検出
     """
-    if re.search(r"[a-zA-Z]{3,}", text): return True
-    if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？（）「」ーぁ-んァ-ン0-9\s]", text): return True
-    if len(text) < 15: return True
+    if re.search(r"[a-zA-Z]{3,}", text):
+        return True
+    if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？（）「」ーぁ-んァ-ン0-9\s]", text):
+        return True
+    if len(text) < 15:
+        return True
     return False
 
 def apply_style_to_generate_text(style, seed):
@@ -84,7 +87,7 @@ def apply_style_to_generate_text(style, seed):
 ⚠️ 目的は“破壊”ではなく“読解不能性”です。
 """.strip()
 
-        try:
+    try:
         response = openai.chat.completions.create(
             model=model,
             messages=[
@@ -95,7 +98,6 @@ def apply_style_to_generate_text(style, seed):
             max_tokens=180,
             stop=None
         )
-        # 安全なアクセス
         result = response.choices[0].message.content.strip()
         if not result:
             print("🛑 応答が空 → 冷却")
@@ -107,7 +109,9 @@ def apply_style_to_generate_text(style, seed):
 
         print(f"✅ 正常出力: {result}")
         return result
-
+    except openai.OpenAIError as e:
+        print(f"🛑 OpenAI API エラー: {e.__class__.__name__} - {e}")
+        return None
 
 def generate_babaa_post():
     unused_styles = get_unused_styles()
