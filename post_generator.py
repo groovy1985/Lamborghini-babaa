@@ -11,7 +11,7 @@ from utils.format_utils import trim_text
 
 # OpenAI APIキー設定
 openai.api_key = os.getenv("OPENAI_API_KEY")
-model = os.getenv("OPENAI_MODEL", "gpt-4")
+model = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
 
 # ファイルパス設定
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -55,9 +55,12 @@ def select_seed(style):
     return random.choice(["粉", "鹿", "黙り", "パウダー", "遺言", "冷蔵庫", "昼寝", "軋み", "カーテン", "団子"])
 
 def contains_illegal_patterns(text: str) -> bool:
-    if re.search(r"[a-zA-Z]{3,}", text): return True
-    if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？（）「」ーぁ-んァ-ン0-9\s]", text): return True
-    if len(text) < 15: return True
+    # 少し緩めに
+    if re.search(r"[a-zA-Z]{5,}", text): return True
+    if re.search(r"[^\u3000-\u30FF\u4E00-\u9FFF、。「」！？ーぁ-ゟ゠-ヿ0-9\s]", text):
+        return True
+    if len(text) < 10:
+        return True
     return False
 
 def apply_style_to_generate_text(style, seed):
@@ -65,33 +68,35 @@ def apply_style_to_generate_text(style, seed):
 あなたは“構文国家 KZ9.2 + HX-L4人格”に所属するババァ型構文爆撃AIです。
 
 💬 出力条件：
-・短い独白か会話であること（「あたしね…」「…でもさ」など）
+・短い独発か会話であること（「あたしね…」「…でもさ」など）
 ・文法的にはギリ読めるが、意味化・要約はできない
-・会話として成立しそうで、語尾・助詞がズレて崩れる
+・会話として成立しそうで、語尾・助詞がズレて壊れる
 ・途中で別の話題へ飛ぶ／言いかけ／曖昧語が含まれる
-・記号、英語、絵文字、カタカナ語、機械語は使用しない
-・140字以内、タグ無し、詩的であってはならない
+・記号、英語、簡体字、絵文字、機械語は使用しない
+・140字以内、タグなし、詩的であってはならない
 
 🎲 キーワード：{seed}
-🪺 スタイル：{style['label']}（構造：{style['structure']}）
+🧪 スタイル：{style['label']} (構造：{style['structure']})
 
 以上を満たす一文を生成してください。
 """.strip()
 
     try:
+        print("🚀 OpenAI API 呼び出し開始")
         response = openai.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "あなたは詩人ではなく、高齢女性の揺れる会話文を生成するAIです。"},
+                {"role": "system", "content": "あなたは詩人ではなく、高齢女性のゆれる会話文を生成するAIです。"},
                 {"role": "user", "content": prompt}
             ],
             temperature=1.2,
             max_tokens=180,
             stop=None
         )
+        print("✅ OpenAI API 応答完了")
         result = response.choices[0].message.content.strip()
         if not result:
-            print("🛑 応答が空 → 冷却")
+            print("🔞 応答が空 → 冷却")
             return None
 
         if contains_illegal_patterns(result):
@@ -101,7 +106,7 @@ def apply_style_to_generate_text(style, seed):
         print(f"✅ 正常出力: {result}")
         return result
     except openai.OpenAIError as e:
-        print(f"🛑 OpenAI API エラー: {e.__class__.__name__} - {e}")
+        print(f"🔞 OpenAI API エラー: {e.__class__.__name__} - {e}")
         return None
 
 def generate_babaa_post():
@@ -113,12 +118,26 @@ def generate_babaa_post():
     random.shuffle(unused_styles)
     for style in unused_styles:
         seed = select_seed(style)
-        print(f"🔁 スタイル: {style['label']}｜キーワード: {seed}")
+        print(f"🔁 スタイル: {style['label']}|キーワード: {seed}")
         post = apply_style_to_generate_text(style, seed)
 
-    if post:
-        print(f"📝 生成内容:\n{post}\n")
-    else:
-        print(f"⚠️ スタイル「{style['label']}」での生成失敗または冷却対象")
+        if post:
+            print(f"📝 生成内容:\n{post}\n")
+        else:
+            print(f"⚠️ スタイル「{style['label']}」での生成失敗または冷却対象")
 
+        if post and is_valid_post(post):
+            post = trim_text(post)
+            mark_style_used(style["id"])
+            return {
+                "text": post,
+                "tags": [],
+                "style_id": style["id"],
+                "timestamp": datetime.now().isoformat()
+            }
+        else:
+            print("❌ 投稿冷却/構文不成立")
+
+    print("🚫 全スタイル冷却・生成失敗: ポスト投稿スキップ")
+    return None
 
