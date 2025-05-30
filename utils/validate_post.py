@@ -2,49 +2,33 @@ import re
 
 def is_valid_post(text: str) -> bool:
     """
-    ババァ構文検閲フィルター
-    読めるが語れない文のみを通過させる。
+    ズレた会話文を許容する軽量チェック：
+    ・構文語／論理語／明確な結論を避ける
+    ・詩や演説になりすぎたものは冷却
     """
 
-    if not text or len(text.strip()) < 15:
-        print("❌ テキストが短すぎる")
-        return False
-
-    # NGワード：明確な論理接続・説明語・正論
-    banned_words = [
-        "だから", "つまり", "なぜなら", "理由は", "要するに", "ということ", "それゆえ", "である", "ですが", "ます", "ました", "と思います"
+    # NGワード（説明語・結論・文法語など）
+    banned_keywords = [
+        "つまり", "なぜなら", "要するに", "結局", "構文", "主語", "語尾", "論理", "理由", "定義"
     ]
-    for word in banned_words:
-        if word in text:
-            print(f"❌ 意味化ワード検出: {word}")
-            return False
 
-    # 接続詞が2つ以上出ると、文脈が生まれやすい
-    connectors = ["そして", "しかし", "それから", "その後", "でも"]
-    if sum(text.count(w) for w in connectors) > 1:
-        print("❌ 接続語の多用 → 構文成立疑い")
+    # 英語・記号・短すぎる文字列は不可（ただし改行は許容）
+    if re.search(r"[a-zA-Z]{3,}", text):
+        return False
+    if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？「」ーぁ-んァ-ン0-9\n\s]", text):
+        return False
+    if len(text.strip()) < 15:
         return False
 
-    # AはBである構文
-    if re.search(r"[はが] .*である", text):
-        print("❌ 形式構文（AはBである）検出")
+    # 明らかに詩構造になってるもの（行頭繰り返しや句読点連続）を排除
+    if text.count("。") > 5 or text.count("、") > 7:
         return False
+    if re.search(r"(あたし|でも|ねえ|それで|まあ|だから|さては)", text[:10]) is None:
+        return False  # 会話文らしい出だしでなければ冷却
 
-    # 明瞭な因果構造：「○○。だから〜」「○○、それで〜」など
-    if re.search(r"(。|、)(だから|それで|ゆえに|なので)", text):
-        print("❌ 因果接続で構文が閉じている")
-        return False
-
-    # あまりにきれいすぎる文末（明確な文・説明・感想）
-    if re.search(r"(です|ます|でした|と思います)$", text):
-        print("❌ 文末がきれいに閉じている")
-        return False
-
-    # 語尾・助詞の反復（テンプレ的リズム）
-    endings = re.findall(r"[ぁ-んァ-ンー]+", text)
-    for word in set(endings):
-        if text.count(word) >= 3 and len(word) > 1:
-            print(f"❌ 語尾反復検出: {word}")
+    # NGワード含むなら即冷却
+    for kw in banned_keywords:
+        if kw in text:
             return False
 
     return True
