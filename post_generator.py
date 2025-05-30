@@ -120,3 +120,6 @@ def generate_babaa_post():
             print(f"📝 生成内容:\n{post}\n")
         else:
             print(f"
+            🔁 スタイル: {style['label']}｜キーワード: {seed}
+            ")
+
