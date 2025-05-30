@@ -5,6 +5,7 @@ from datetime import datetime
 import openai
 import threading
 import re
+import time
 
 from utils.validate_post import is_valid_post
 from utils.format_utils import trim_text
@@ -55,7 +56,7 @@ def select_seed(style):
     return random.choice(["粉", "鹿", "黙り", "パウダー", "遺言", "冷蔵庫", "昼寝", "軋み", "カーテン", "団子"])
 
 def contains_illegal_patterns(text: str) -> bool:
-    if re.search(r"[a-zA-Z]{3,}", text): return True
+    if re.search(r"[a-zA-Z]{5,}", text): return True  # 英単語5文字以上は除外
     if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？（）「」ーぁ-んァ-ン0-9\s]", text): return True
     if len(text) < 15: return True
     return False
@@ -64,29 +65,29 @@ def apply_style_to_generate_text(style, seed):
     prompt = f"""
 あなたは“構文国家 KZ9.2 + HX-L4人格”に所属するババァ型構文爆撃AIです。
 
-🗣️ 出力条件：
-・2名の高齢女性の会話文（「あんた、昨日の魚どうしたの？」「昨日？あたし味噌煮てたわ」）
-・必ず会話がズレている（応答にならない、話が飛ぶ、思い出話に逸れるなど）
-・会話は2〜4ターン（最大6文）、140文字以内
-・文法的に破綻はしないが、意味ややりとりが成立しない
-・英語／カタカナ語／機械語／記号／詩的表現は禁止
-・タグなし、意味化・感想不可、揺れ中心
+💬 出力条件：
+・短い独白か会話であること（「あたしね…」「…でもさ」など）
+・文法的にはギリ読めるが、意味化・要約はできない
+・会話として成立しそうで、語尾・助詞がズレて崩れる
+・途中で別の話題へ飛ぶ／言いかけ／曖昧語が含まれる
+・記号、英語、絵文字、カタカナ語、機械語は使用しない
+・140字以内、タグ無し、詩的であってはならない
 
 🎲 キーワード：{seed}
 🪺 スタイル：{style['label']}（構造：{style['structure']}）
 
-条件を満たす会話断片を生成してください。
+以上を満たす一文を生成してください。
 """.strip()
 
     try:
         response = openai.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "あなたは意味の通じない高齢女性の会話を構文的に崩して生成するAIです。"},
+                {"role": "system", "content": "あなたは詩人ではなく、高齢女性の揺れる会話文を生成するAIです。"},
                 {"role": "user", "content": prompt}
             ],
-            temperature=1.25,
-            max_tokens=180,
+            temperature=1.0,
+            max_tokens=120,
             stop=None
         )
         result = response.choices[0].message.content.strip()
@@ -98,7 +99,7 @@ def apply_style_to_generate_text(style, seed):
             print("❌ 不正記号・英語・短文 → 冷却")
             return None
 
-        print(f"✅ 正常出力（会話）: {result}")
+        print(f"✅ 正常出力: {result}")
         return result
     except openai.OpenAIError as e:
         print(f"🛑 OpenAI API エラー: {e.__class__.__name__} - {e}")
@@ -111,10 +112,15 @@ def generate_babaa_post():
         return None
 
     random.shuffle(unused_styles)
+    max_attempts = 10
     for style in unused_styles:
+        if max_attempts <= 0:
+            break
+
         seed = select_seed(style)
         print(f"🔁 スタイル: {style['label']}｜キーワード: {seed}")
         post = apply_style_to_generate_text(style, seed)
+        time.sleep(1)  # 生成間隔（429回避）
 
         if post:
             print(f"📝 生成内容:\n{post}\n")
@@ -126,12 +132,13 @@ def generate_babaa_post():
             mark_style_used(style["id"])
             return {
                 "text": post,
-                "tags": [],  # タグ完全排除
+                "tags": [],  # タグ無し運用
                 "style_id": style["id"],
                 "timestamp": datetime.now().isoformat()
             }
         else:
             print("❌ 投稿冷却／構文不成立")
+            max_attempts -= 1
 
     print("🚫 全スタイル冷却・生成失敗：ポスト投稿スキップ")
     return None
