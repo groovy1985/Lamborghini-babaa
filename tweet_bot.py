@@ -1,14 +1,24 @@
 import os
 import tweepy
+import sys
+from dotenv import load_dotenv
 from post_generator import generate_babaa_post
 
-# Twitter API 認証情報（環境変数から取得）
+# .env 読み込み
+load_dotenv()
+
+# Twitter API 認証情報の取得
 TWITTER_CONSUMER_KEY = os.getenv("TWITTER_CONSUMER_KEY")
 TWITTER_CONSUMER_SECRET = os.getenv("TWITTER_CONSUMER_SECRET")
 TWITTER_ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN")
 TWITTER_ACCESS_SECRET = os.getenv("TWITTER_ACCESS_SECRET")
 
-# Twitter API 認証処理
+# 認証情報のバリデーション
+if not all([TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_SECRET]):
+    print("🛑 Twitter APIキーが未設定です。環境変数（.env）を確認してください。")
+    sys.exit(1)
+
+# 認証処理
 auth = tweepy.OAuth1UserHandler(
     TWITTER_CONSUMER_KEY,
     TWITTER_CONSUMER_SECRET,
