@@ -116,10 +116,9 @@ def generate_babaa_post():
         print(f"🔁 スタイル: {style['label']}｜キーワード: {seed}")
         post = apply_style_to_generate_text(style, seed)
 
-        if post:
-            print(f"📝 生成内容:\n{post}\n")
-        else:
-            print(f"
-            🔁 スタイル: {style['label']}｜キーワード: {seed}
-            ")
+    if post:
+        print(f"📝 生成内容:\n{post}\n")
+    else:
+        print(f"⚠️ スタイル「{style['label']}」での生成失敗または冷却対象")
+
 
