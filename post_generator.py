@@ -84,7 +84,7 @@ def apply_style_to_generate_text(style, seed):
 ⚠️ 目的は“破壊”ではなく“読解不能性”です。
 """.strip()
 
-    try:
+        try:
         response = openai.chat.completions.create(
             model=model,
             messages=[
@@ -96,7 +96,7 @@ def apply_style_to_generate_text(style, seed):
             stop=None
         )
         # 安全なアクセス
-       result = response.choices[0].message.content.strip()
+        result = response.choices[0].message.content.strip()
         if not result:
             print("🛑 応答が空 → 冷却")
             return None
@@ -107,9 +107,7 @@ def apply_style_to_generate_text(style, seed):
 
         print(f"✅ 正常出力: {result}")
         return result
-    except openai.OpenAIError as e:
-        print(f"🛑 OpenAI API エラー: {e.__class__.__name__} - {e}")
-        return None
+
 
 def generate_babaa_post():
     unused_styles = get_unused_styles()
