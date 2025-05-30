@@ -96,7 +96,7 @@ def apply_style_to_generate_text(style, seed):
             stop=None
         )
         # 安全なアクセス
-        result = response.choices[0].message.get("content", "").strip()
+       result = response.choices[0].message.content.strip()
         if not result:
             print("🛑 応答が空 → 冷却")
             return None
