@@ -1,55 +1,50 @@
 import os
 import sys
+import json
 import tweepy
 from dotenv import load_dotenv
 from post_generator import generate_babaa_post
 
-# .env 読み込み（ローカル用、GitHub Actionsでは無視される）
 load_dotenv()
 
-# 正しいSecrets名に合わせて修正
-TWITTER_CONSUMER_KEY = os.getenv("TWITTER_API_KEY")
-TWITTER_CONSUMER_SECRET = os.getenv("TWITTER_API_SECRET")
-TWITTER_ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN")
-TWITTER_ACCESS_SECRET = os.getenv("TWITTER_ACCESS_SECRET")
+# 環境変数の取得（Secrets または .env）
+API_KEY = os.getenv("TWITTER_API_KEY")
+API_SECRET = os.getenv("TWITTER_API_SECRET")
+ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN")
+ACCESS_SECRET = os.getenv("TWITTER_ACCESS_SECRET")
+BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
 
 # 認証情報のチェック
-if not all([TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_SECRET]):
+if not all([API_KEY, API_SECRET, ACCESS_TOKEN, ACCESS_SECRET, BEARER_TOKEN]):
     print("🛑 Twitter APIキーが未設定です。Secretsまたは.envを確認してください。")
     sys.exit(1)
 
-# Twitter認証
-auth = tweepy.OAuth1UserHandler(
-    TWITTER_CONSUMER_KEY,
-    TWITTER_CONSUMER_SECRET,
-    TWITTER_ACCESS_TOKEN,
-    TWITTER_ACCESS_SECRET
-)
-api = tweepy.API(auth)
+def save_post(text, file_path="used_posts.json"):
+    try:
+        used = []
+        if os.path.exists(file_path):
+            with open(file_path, "r", encoding="utf-8") as f:
+                used = json.load(f)
+        used.append(text.strip())
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(used, f, ensure_ascii=False, indent=2)
+        print("✅ 投稿内容を保存しました。")
+    except Exception as e:
+        print(f"⚠️ 投稿ログ保存エラー: {e}")
 
 def post_to_twitter(text):
     try:
-        api.update_status(status=text)
-        print("🎉 ツイート完了")
-    except tweepy.errors.Forbidden as e:
-        print("🚫 投稿拒否（403 Forbidden）")
-        print(f"詳細: {e}")
-    except tweepy.errors.TweepyException as e:
-        print("🛑 Tweepyエラーが発生しました")
-        print(f"詳細: {e}")
+        print(f"🕊️ 投稿内容: {text}")
+        client = tweepy.Client(
+            bearer_token=BEARER_TOKEN,
+            consumer_key=API_KEY,
+            consumer_secret=API_SECRET,
+            access_token=ACCESS_TOKEN,
+            access_token_secret=ACCESS_SECRET
+        )
+        response = client.create_tweet(text=text)
+        print(f"✅ 投稿完了: https://twitter.com/user/status/{response.data['id']}")
+        return True
     except Exception as e:
-        print("❗ その他のエラーが発生しました")
-        print(f"詳細: {e}")
-
-def main():
-    post_data = generate_babaa_post()
-    if not post_data:
-        print("🚫 投稿スキップ（生成失敗または冷却）")
-        return
-
-    text = post_data["text"]
-    print(f"📤 投稿内容:\n{text}")
-    post_to_twitter(text)
-
-if __name__ == "__main__":
-    main()
+        print(f"⚠️ 投稿失敗: {e}")
+        return Fal
