@@ -74,17 +74,19 @@ def increment_daily_count():
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 def select_seed(style):
-    return random.choice(["powder", "deer", "curtain", "nap", "legacy", "fridge", "sigh", "crumb", "panel", "shadow"])
+    # 意味が強すぎるワードを除外
+    return random.choice(["powder", "curtain", "nap", "fridge", "crumb", "panel", "shadow"])
 
 def translate_to_japanese(english_text: str) -> str:
     prompt = (
-        f"以下の英文を日本語に訳してください（Poemkun的人格、意味ズレ許容、会話風、140字以内）：\n"
+        f"以下の英文を、日本語に訳してください（意味ズレ／湿った会話風／Poemkun風禁止／140字以内）：\n"
+        f"・説明口調にしない\n・語尾は曖昧に\n・主観と主語を滲ませる\n\n"
         f"英文:\n{english_text}\n\n日本語："
     )
     response = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
-        temperature=1.1,
+        temperature=1.2,
     )
     return response.choices[0].message.content.strip()
 
@@ -117,13 +119,13 @@ def generate_babaa_post():
         try:
             # 英語で生成
             en_prompt = (
-                "You are Babaa, an old woman speaking in unstable suspended English syntax. "
-                "Generate a one-sentence dialogue-like utterance using the keyword: " + seed
+                "You are Babaa, an old woman speaking in unstable, misaligned sentences. "
+                "Avoid clarity, avoid beauty. Generate one vague line of dialogue using the keyword: " + seed
             )
             en_response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": en_prompt}],
-                temperature=1.3
+                temperature=1.4
             )
             english_text = en_response.choices[0].message.content.strip()
             print(f"🌐 EN: {english_text}")
