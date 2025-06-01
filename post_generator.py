@@ -20,7 +20,7 @@ style_path = os.path.join(base_dir, "babaa_styles.json")
 STYLE_USAGE_PATH = os.path.join(base_dir, "logs/style_usage.json")
 DAILY_LIMIT_PATH = os.path.join(base_dir, "logs/daily_limit.json")
 
-DAILY_LIMIT = 5
+DAILY_LIMIT = 15
 MAX_GLOBAL_ATTEMPTS = 12
 
 # Load styles
