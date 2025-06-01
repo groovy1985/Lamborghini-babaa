@@ -15,14 +15,26 @@ auth = tweepy.OAuth1UserHandler(
 )
 api = tweepy.API(auth)
 
-# 投稿生成と送信
+# 認証確認
+try:
+    if not api.verify_credentials():
+        print("❌ 認証エラー：APIキーまたはトークンが無効です")
+        exit(1)
+    else:
+        print("✅ 認証成功：トークンは有効です")
+except Exception as e:
+    print(f"❌ 認証チェック失敗: {e}")
+    exit(1)
+
+# 1件だけ生成・投稿
 post = generate_babaa_post()
 
-if post and post["text"]:
+if post:
     try:
-        api.update_status(status=post["text"])
-        print(f"🕊️ 投稿成功: {post['text']}")
+        print(f"🕊️ 投稿中: {post['text']}")
+        api.update_status(status=post['text'])
+        print("✅ 投稿完了")
     except Exception as e:
         print(f"❌ 投稿失敗: {e}")
 else:
-    print("🚫 投稿生成なし：スキップ")
+    print("🚫 投稿するポストが生成されませんでした")
