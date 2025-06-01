@@ -38,4 +38,3 @@ def is_valid_post(text: str) -> bool:
         return False
 
     return True
-
