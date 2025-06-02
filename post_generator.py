@@ -9,12 +9,12 @@ from openai import OpenAI
 from utils.validate_post import is_valid_post
 from utils.format_utils import trim_text
 
-# ✅ Load environment variables
+# ✅ 環境変数読み込み
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 model = os.getenv("OPENAI_MODEL", "gpt-4")
 
-# ✅ Paths and constants
+# ✅ パス定義
 base_dir = os.path.dirname(os.path.abspath(__file__))
 style_path = os.path.join(base_dir, "babaa_styles.json")
 STYLE_USAGE_PATH = os.path.join(base_dir, "logs/style_usage.json")
@@ -23,11 +23,11 @@ DAILY_LIMIT_PATH = os.path.join(base_dir, "logs/daily_limit.json")
 DAILY_LIMIT = 15
 MAX_GLOBAL_ATTEMPTS = 12
 
-# ✅ Load style list
+# ✅ スタイル読み込み
 with open(style_path, "r", encoding="utf-8") as f:
     styles = json.load(f)
 
-# ✅ Utility functions
+# ✅ 日次チェック
 def check_daily_limit():
     today = datetime.now().strftime("%Y-%m-%d")
     if os.path.exists(DAILY_LIMIT_PATH):
@@ -48,6 +48,7 @@ def increment_daily_count():
     with open(DAILY_LIMIT_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
+# ✅ スタイル使用管理
 def get_unused_styles():
     used_ids = set()
     if os.path.exists(STYLE_USAGE_PATH):
@@ -72,31 +73,34 @@ def mark_style_used(style_id):
     with open(STYLE_USAGE_PATH, "w", encoding="utf-8") as f:
         json.dump(used, f, ensure_ascii=False, indent=2)
 
+# ✅ キーワード
 def select_seed(style):
-    return random.choice(["powder", "nap", "panel", "jar", "wire", "grass", "sock"])
+    return random.choice(["powder", "cord", "vent", "closet", "tile", "umbrella", "glove"])
 
+# ✅ 禁止パターン検知
 def contains_illegal_patterns(text: str) -> bool:
     if re.search(r"[a-zA-Z]{5,}", text): return True
-    if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？（）「」ーぁ-んァ-ン0-9\s]", text): return True
-    if len(text) < 15 or len(text) > 140: return True
-    if "。" not in text and "？" not in text and "！" not in text: return True
-    if "「" not in text and "」" not in text: return True
+    if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？「」ーぁ-んァ-ン0-9\s]", text): return True
+    if len(text) < 20 or len(text) > 140: return True
+    if text.count("「") < 3 or text.count("」") < 3: return True
     return False
 
+# ✅ 翻訳（3セリフの日本語会話）
 def translate_to_japanese(english_text: str) -> str:
     prompt = (
-        "以下の英文は日本語の老婆2人によるズレた会話です。直訳せずに、日本語として自然な会話文2行にしてください。"
-        "詩的にしない／説明しない／Poemkun風は禁止／比喩や感情禁止／140字以内。\n\n"
+        "以下の英文は、老婆2人による3セリフの日本語会話です（A→B→A）。"
+        "ズレた会話で意味は噛み合いませんが、会話として成立している必要があります。"
+        "・説明しない・詩的にしない・140文字以内・Poemkun風は禁止\n\n"
         f"英文:\n{english_text}\n\n日本語："
     )
     response = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
-        temperature=1.3
+        temperature=1.2
     )
     return response.choices[0].message.content.strip()
 
-# ✅ Main function
+# ✅ メイン関数（140字A→B→A構成）
 def generate_babaa_post():
     if not check_daily_limit():
         return None
@@ -117,15 +121,15 @@ def generate_babaa_post():
         print(f"🔁 スタイル: {style['label']}｜キーワード: {seed}")
 
         try:
+            # ✅ 英語で3セリフ会話生成（A→B→A構造）
             system_prompt = (
                 "You are BabaaBot, generating fictional Japanese dialogue between two elderly women. "
-                "Their conversation is always disjointed, misaligned, and ends in eccentric or surreal logic. "
-                "No narration. No explanations. Output only two lines of dialogue in Japanese."
+                "Only generate 3 dialogue lines: A→B→A. Each line must be unstable, misaligned, and logically broken. "
+                "Avoid clarity, emotion, beauty. End with a surreal or impossible conclusion. No narration."
             )
             user_prompt = (
-                f"Generate a short conversation between two elderly women. "
-                f"Their lines should not logically connect. End with a bizarre or impossible conclusion. "
-                f"Keyword (optional): {seed}. Keep under 140 Japanese characters total."
+                f"Generate a broken dialogue between two old women (A→B→A), 3 lines only. "
+                f"Include this keyword if needed: {seed}. Total must stay under 140 Japanese characters after translation."
             )
             en_response = client.chat.completions.create(
                 model=model,
