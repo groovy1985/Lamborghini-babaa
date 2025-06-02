@@ -14,7 +14,7 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 model = os.getenv("OPENAI_MODEL", "gpt-4")
 
-# ✅ ファイルパス定義
+# ✅ パス定義
 base_dir = os.path.dirname(os.path.abspath(__file__))
 style_path = os.path.join(base_dir, "babaa_styles.json")
 STYLE_USAGE_PATH = os.path.join(base_dir, "logs/style_usage.json")
@@ -27,8 +27,7 @@ MAX_GLOBAL_ATTEMPTS = 12
 with open(style_path, "r", encoding="utf-8") as f:
     styles = json.load(f)
 
-# ✅ 補助関数（全て内包）
-
+# ✅ 日次制限チェック
 def check_daily_limit():
     today = datetime.now().strftime("%Y-%m-%d")
     if os.path.exists(DAILY_LIMIT_PATH):
@@ -49,6 +48,7 @@ def increment_daily_count():
     with open(DAILY_LIMIT_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
+# ✅ スタイル選定
 def get_unused_styles():
     used_ids = set()
     if os.path.exists(STYLE_USAGE_PATH):
@@ -73,23 +73,31 @@ def mark_style_used(style_id):
     with open(STYLE_USAGE_PATH, "w", encoding="utf-8") as f:
         json.dump(used, f, ensure_ascii=False, indent=2)
 
+# ✅ キーワード
 def select_seed(style):
-    return random.choice(["tile", "coin", "closet", "bag", "apron", "soap", "thread"])
+    return random.choice(["sock", "napkin", "string", "cushion", "stove", "bucket", "glove"])
+
+# ✅ 禁止パターン・語句
+FORBIDDEN_WORDS = ["太陽", "虹", "涙", "夢", "心", "美しい", "希望", "祈り", "光", "空", "音", "調和"]
 
 def contains_illegal_patterns(text: str) -> bool:
     if re.search(r"[a-zA-Z]{5,}", text): return True
     if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？「」ーぁ-んァ-ン0-9\s]", text): return True
-    if len(text) > 140: return True
+    if len(text) > 140 or len(text) < 15: return True
     if "「" not in text or "」" not in text: return True
-    if text.count("「") < 2: return True  # 少なくとも2発言分
+    for word in FORBIDDEN_WORDS:
+        if word in text:
+            print(f"❌ 禁止語句検出: {word}")
+            return True
     return False
 
-# ✅ 翻訳処理（1往復ババァ会話）
+# ✅ 翻訳プロンプト（詩的排除・破綻重視）
 def translate_to_japanese(english_text: str) -> str:
     prompt = (
-        "以下の英文は老婆2人の短い会話です（A→B）。意味はかみ合っていません。"
-        "奇妙な論理で着地し、詩的ではなく、曖昧なまま終わります。"
-        "説明・情緒は禁止、Poemkun風の独白は禁止、140文字以内、日本語の会話2行で訳してください：\n\n"
+        "以下の英文は老婆2人の会話です（A→B）。"
+        "ズレた2セリフとして、詩的・情緒的・比喩的表現を使わず日本語に訳してください。"
+        "構造は破綻していて良いですが、説明や感情語は禁止。"
+        "Poemkun風の独白は禁止。必ず会話2行、140文字以内で：\n\n"
         f"{english_text}\n\n日本語："
     )
     response = client.chat.completions.create(
@@ -99,7 +107,7 @@ def translate_to_japanese(english_text: str) -> str:
     )
     return response.choices[0].message.content.strip()
 
-# ✅ メイン生成関数
+# ✅ メイン関数
 def generate_babaa_post():
     if not check_daily_limit():
         return None
@@ -122,12 +130,12 @@ def generate_babaa_post():
         try:
             system_prompt = (
                 "You are BabaaBot, generating Japanese dialogue between two old women. "
-                "The conversation is broken and misaligned, ending with a surreal or absurd connection. "
-                "Only generate 2 lines of dialogue. No narration, no emotion, no poetry."
+                "Their conversation must be broken, misaligned, and end in a surreal or absurd link. "
+                "Only output 2 lines of dialogue. No narration, no poetry, no emotion."
             )
             user_prompt = (
-                f"Generate a short conversation between two elderly women (A→B), with a strange, broken logic. "
-                f"End with something eccentric or impossible. Keyword (optional): {seed}"
+                f"Generate a short A→B dialogue between elderly women, using broken or absurd logic. "
+                f"Include the keyword '{seed}' if helpful. Final length after translation must stay under 140 Japanese characters."
             )
             en_response = client.chat.completions.create(
                 model=model,
