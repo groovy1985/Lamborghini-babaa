@@ -45,11 +45,12 @@ def generate_babaa_post():
         try:
             en_prompt = (
                 "Write a 3-turn dialogue between two elderly women.\n"
-                "Each line must sound like a reply to the previous one, but the logic between them should not align.\n"
-                "The conversation should progress with each line subtly contradicting or misaligning with the last.\n"
-                "The tone should be gently surreal, metaphorical, and emotionally suggestive—never pure nonsense.\n"
+                "Each line must sound like a reply to the previous one, but the logic between them should remain misaligned.\n"
+                "The conversation should progress as if the speakers are responding to each other, yet their meanings subtly contradict, diverge, or derail.\n"
+                "The tone should be gently surreal, metaphorical, and emotionally suggestive—but never nonsensical or incoherent.\n"
+                "Each response should contain a gesture of interaction—such as agreement, misinterpretation, elaboration, or unexpected redirection.\n"
                 "Avoid names or speaker labels.\n"
-                "Format as three separate lines, each starting with Japanese-style quotes: 「」\n"
+                "Format the dialogue as three separate lines, each beginning with Japanese-style quotes: 「」\n"
                 "Example:\n"
                 "「I asked the clock if it still remembers Thursdays」\n"
                 "「Only the ones that smelled like burnt toast」\n"
@@ -66,7 +67,7 @@ def generate_babaa_post():
 
             ja_prompt = (
                 f"Translate the following 3-line dialogue into natural Japanese, as if spoken between two elderly women.\n"
-                f"Each line should feel like a reply, but the meanings should remain subtly misaligned.\n"
+                f"Each line should feel like a response, but the meanings should remain subtly misaligned.\n"
                 f"The tone must be poetic, slightly surreal, and emotionally suggestive.\n"
                 f"Keep the form as dialogue, not a monologue.\n"
                 f"Use Japanese quote marks (「」) at the start of each line.\n\n{english_text}\n\nJapanese:"
