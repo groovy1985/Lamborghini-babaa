@@ -45,11 +45,11 @@ def generate_babaa_post():
         try:
             en_prompt = (
                 "Write a 3-turn dialogue between two elderly women.\n"
-                "Each line should sound like a reply to the previous line, but must not logically follow it.\n"
-                "The tone should be subtly surreal, metaphorical, or uncanny — but not meaningless.\n"
-                "Each speaker must seem to respond, yet the meanings should drift apart.\n"
-                "Do not use names or speaker labels.\n"
-                "Format the dialogue as three lines, each starting with Japanese-style quotes: 「」\n"
+                "Each line must sound like a reply to the previous one, but the logic between them should not align.\n"
+                "The conversation should progress with each line subtly contradicting or misaligning with the last.\n"
+                "The tone should be gently surreal, metaphorical, and emotionally suggestive—never pure nonsense.\n"
+                "Avoid names or speaker labels.\n"
+                "Format as three separate lines, each starting with Japanese-style quotes: 「」\n"
                 "Example:\n"
                 "「I asked the clock if it still remembers Thursdays」\n"
                 "「Only the ones that smelled like burnt toast」\n"
@@ -66,7 +66,7 @@ def generate_babaa_post():
 
             ja_prompt = (
                 f"Translate the following 3-line dialogue into natural Japanese, as if spoken between two elderly women.\n"
-                f"Each line should feel like a response, but meanings must remain subtly misaligned.\n"
+                f"Each line should feel like a reply, but the meanings should remain subtly misaligned.\n"
                 f"The tone must be poetic, slightly surreal, and emotionally suggestive.\n"
                 f"Keep the form as dialogue, not a monologue.\n"
                 f"Use Japanese quote marks (「」) at the start of each line.\n\n{english_text}\n\nJapanese:"
