@@ -43,19 +43,29 @@ def generate_babaa_post():
     max_attempts = 10
     for _ in range(max_attempts):
         try:
-            en_prompt = (
-                "Write a 3-turn dialogue between two elderly women.\n"
-                "Each line must sound like a reply to the previous one, but the logic between them should remain misaligned.\n"
-                "The conversation should progress as if the speakers are responding to each other, yet their meanings subtly contradict, diverge, or derail.\n"
-                "The tone should be gently surreal, metaphorical, and emotionally suggestive—but never nonsensical or incoherent.\n"
-                "Each response should contain a gesture of interaction—such as agreement, misinterpretation, elaboration, or unexpected redirection.\n"
-                "Avoid names or speaker labels.\n"
-                "Format the dialogue as three separate lines, each beginning with Japanese-style quotes: 「」\n"
-                "Example:\n"
-                "「I asked the clock if it still remembers Thursdays」\n"
-                "「Only the ones that smelled like burnt toast」\n"
-                "「My umbrella never forgave me for that」"
-            )
+
+            en_prompt = """
+            Write a 3-turn dialogue between two elderly women.
+
+            Each line must *appear* to respond to the previous one, but their meanings must be subtly disjointed—through contradiction, surreal elaboration, or associative drift.
+
+            The conversation should *pretend* coherence while gently unraveling it. Do not explain the dissonance. Do not collapse into randomness.
+
+            Each line must contain a gesture of interaction: agreement, confusion, elaboration, or metaphoric redirection.
+
+            Avoid names or speaker labels.  
+            Do not use line breaks inside each line.  
+            Format with Japanese-style quotes: 「」  
+
+            Target tone: poetic, haunted, half-remembered, slightly absurd.  
+            No moralizing, no sentimentality.  
+            Make it feel like a fragile misunderstanding between ghosts.
+
+            Example:  
+            「I asked the clock if it still remembers Thursdays」  
+            「Only the ones that smelled like burnt toast」  
+            「My umbrella never forgave me for that」
+            """
 
             en_response = client.chat.completions.create(
                 model=model,
