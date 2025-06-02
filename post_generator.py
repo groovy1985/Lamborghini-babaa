@@ -4,10 +4,11 @@ import time
 from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
+from validate_post import is_valid_post
 
 # Load environment variables
 load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI()
 model = os.getenv("OPENAI_MODEL", "gpt-4")
 
 DAILY_LIMIT = 15
@@ -62,6 +63,7 @@ def generate_babaa_post():
                 temperature=1.35,
             )
             english_text = en_response.choices[0].message.content.strip()
+            english_text = "\n".join(re.findall(r"「.*?」", english_text)) or english_text
             print(f"🌐 EN: {english_text}")
 
             ja_prompt = (
@@ -82,8 +84,15 @@ def generate_babaa_post():
 
             lines = [line for line in japanese_text.splitlines() if line.strip()]
             total_len = len("".join(lines))
-            if len(lines) == 3 and 20 <= total_len <= 140:
+            if len(lines) == 3 and 20 <= total_len <= 140 and is_valid_post(japanese_text):
                 increment_daily_count()
+                with open("logs/generated.jsonl", "a", encoding="utf-8") as f:
+                    json.dump({
+                        "text": japanese_text,
+                        "timestamp": datetime.now().isoformat(),
+                        "english": english_text
+                    }, f, ensure_ascii=False)
+                    f.write("\n")
                 return {
                     "text": japanese_text,
                     "timestamp": datetime.now().isoformat(),
