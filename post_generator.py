@@ -47,6 +47,7 @@ def generate_babaa_post():
                 "Write a 3-turn dialogue between two elderly women. "
                 "The conversation may include surreal or eccentric elements, or resemble proverbs. "
                 "What matters is that each line does not logically follow the last. "
+                "Each line should feel like a reply, but misaligned. Keep the structure of dialogue. "
                 "No names or speaker labels. Format as three lines using Japanese-style quotes: 「」."
             )
 
@@ -60,8 +61,9 @@ def generate_babaa_post():
 
             ja_prompt = (
                 f"Translate the following dialogue into natural Japanese as if two elderly women are speaking.\n"
-                f"Use Japanese quote marks（「」）for each line. You may keep eccentric, surreal, or proverb-like tone.\n"
-                f"\n{english_text}\n\nJapanese:")
+                f"Each line must seem like a response, but remain misaligned.\n"
+                f"Do not let it turn into a monologue. Keep the structure of conversation.\n"
+                f"Use Japanese quote marks（「」）for each line.\n\n{english_text}\n\nJapanese:")
 
             ja_response = client.chat.completions.create(
                 model=model,
