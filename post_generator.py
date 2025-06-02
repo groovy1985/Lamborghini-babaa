@@ -44,22 +44,25 @@ def generate_babaa_post():
     for _ in range(max_attempts):
         try:
             en_prompt = (
-                "Write a short dialogue between two old women, A and B. "
-                "The conversation must be completely misaligned and end with an eccentric comment by A. "
-                "Use surreal or logically unstable language. No poetry, no beauty. Just 3 lines: A→B→A."
+                "Write a 3-turn dialogue between two eccentric elderly women."
+                " Each line should be slightly misaligned from the last."
+                " No need for surrealism or absurdity—just gentle disconnection."
+                " Do not use names or labels."
+                " Format as three lines using Japanese-style quotes (「」)."
             )
 
             en_response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": en_prompt}],
-                temperature=1.4
+                temperature=1.3
             )
             english_text = en_response.choices[0].message.content.strip()
             print(f"\U0001f310 EN: {english_text}")
 
             ja_prompt = (
-                f"Translate the following dialogue into natural Japanese as if two eccentric elderly women are speaking.\n"
-                f"Keep it plain and short. No embellishment.\n\n{english_text}\n\nJapanese:")
+                f"Translate the following dialogue into natural Japanese as if two old women are speaking."
+                f" Use Japanese quote marks（「」）for each line. Avoid exaggeration. Just let the disconnection remain."
+                f"\n\n{english_text}\n\nJapanese:")
 
             ja_response = client.chat.completions.create(
                 model=model,
