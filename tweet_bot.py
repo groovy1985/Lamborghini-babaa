@@ -6,42 +6,35 @@ from post_generator import generate_babaa_post
 # ✅ 環境変数の読み込み
 load_dotenv()
 
-# ✅ OAuth1.0a認証
-try:
-    auth = tweepy.OAuth1UserHandler(
-        os.getenv("TWITTER_API_KEY"),
-        os.getenv("TWITTER_API_SECRET"),
-        os.getenv("TWITTER_ACCESS_TOKEN"),
-        os.getenv("TWITTER_ACCESS_SECRET")
-    )
-    api = tweepy.API(auth)
-except Exception as e:
-    print(f"❌ 認証情報の初期化に失敗: {e}")
-    exit(1)
+# ✅ 環境変数の取得関数
+def get_env(name):
+    value = os.getenv(name)
+    if not value:
+        raise ValueError(f"❌ 環境変数 {name} が設定されていません")
+    return value
 
-# ✅ 認証確認
-try:
-    if not api.verify_credentials():
-        print("❌ 認証エラー：APIキーまたはトークンが無効です")
-        exit(1)
-    else:
-        print("✅ 認証成功：トークンは有効です")
-except Exception as e:
-    print(f"❌ 認証チェック失敗: {e}")
-    exit(1)
-
-# ✅ 1件だけ生成・投稿
+# ✅ 投稿生成
 try:
     post = generate_babaa_post()
 except Exception as e:
     print(f"❌ ポスト生成エラー: {e}")
     exit(1)
 
+# ✅ 投稿処理（API v2: create_tweet使用）
 if post and "text" in post:
     try:
         print(f"🕊️ 投稿中: {post['text']}")
-        api.update_status(status=post['text'])  # API v1.1 経由の投稿
-        print("✅ 投稿完了")
+
+        client = tweepy.Client(
+            consumer_key=get_env("TWITTER_API_KEY"),
+            consumer_secret=get_env("TWITTER_API_SECRET"),
+            access_token=get_env("TWITTER_ACCESS_TOKEN"),
+            access_token_secret=get_env("TWITTER_ACCESS_SECRET"),
+            bearer_token=get_env("TWITTER_BEARER_TOKEN")  # FreeプランでもOK
+        )
+
+        response = client.create_tweet(text=post['text'])
+        print(f"✅ 投稿完了: https://twitter.com/user/status/{response.data['id']}")
     except Exception as e:
         print(f"❌ 投稿失敗: {e}")
 else:
