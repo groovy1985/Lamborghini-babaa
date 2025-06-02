@@ -1,41 +1,3 @@
-import os
-import json
-import time
-from datetime import datetime
-from dotenv import load_dotenv
-from openai import OpenAI
-
-# Load environment variables
-load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-model = os.getenv("OPENAI_MODEL", "gpt-4")
-
-DAILY_LIMIT = 15
-DAILY_LIMIT_PATH = "logs/daily_limit.json"
-
-
-def check_daily_limit():
-    today = datetime.now().strftime("%Y-%m-%d")
-    if os.path.exists(DAILY_LIMIT_PATH):
-        with open(DAILY_LIMIT_PATH, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        if data.get(today, 0) >= DAILY_LIMIT:
-            print(f"⛑️ 本日分の生成上限（{DAILY_LIMIT}件）に達しました")
-            return False
-    return True
-
-
-def increment_daily_count():
-    today = datetime.now().strftime("%Y-%m-%d")
-    data = {}
-    if os.path.exists(DAILY_LIMIT_PATH):
-        with open(DAILY_LIMIT_PATH, "r", encoding="utf-8") as f:
-            data = json.load(f)
-    data[today] = data.get(today, 0) + 1
-    with open(DAILY_LIMIT_PATH, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-
 def generate_babaa_post():
     if not check_daily_limit():
         return None
@@ -43,62 +5,42 @@ def generate_babaa_post():
     max_attempts = 10
     for _ in range(max_attempts):
         try:
+            jp_prompt = """
+老女二人による三行の会話を書いてください。
 
-            en_prompt = """
-            Write a 3-turn dialogue between two elderly women.
+各行は、前の発言に“応答しているように見える”必要がありますが、意味内容は微妙にずれていてください。
+応答のように見せかけながら、認識のすれ違いや比喩的な脱線が起こるようにしてください。
 
-            Each line must *appear* to respond to the previous one, but their meanings must be subtly disjointed—through contradiction, surreal elaboration, or associative drift.
+会話は、かろうじて整合しているように振る舞いながら、静かにその一貫性が崩れていくものにしてください。
+完全に意味不明にならないようにしてください。詩的で構造が壊れているように見えても、意図的な会話形式でなければいけません。
 
-            The conversation should *pretend* coherence while gently unraveling it. Do not explain the dissonance. Do not collapse into randomness.
+感傷的・抽象的な単語（愛・希望・記憶・魂など）は避けてください。
+名前・話者記号は使わず、日本語の会話文のように「」で始まる3行で書いてください。
+それぞれの行は、独立した比喩や印象を持ちつつ、会話全体が“幽霊同士の誤解”のように見えるようにしてください。
 
-            Each line must contain a gesture of interaction: agreement, confusion, elaboration, or metaphoric redirection.
+例：
+「昨日、納屋で赤ん坊みたいな音を聞いたの」
+「うちも、階段の影が時々喋るって言ってたわ」
+「でも靴だけは、もう誰にも履かせないんだって」
+"""
 
-            Avoid names or speaker labels.  
-            Do not use line breaks inside each line.  
-            Format with Japanese-style quotes: 「」  
-
-            Target tone: poetic, haunted, half-remembered, slightly absurd.  
-            No moralizing, no sentimentality.  
-            Make it feel like a fragile misunderstanding between ghosts.
-
-            Example:  
-            「I asked the clock if it still remembers Thursdays」  
-            「Only the ones that smelled like burnt toast」  
-            「My umbrella never forgave me for that」
-            """
-
-            en_response = client.chat.completions.create(
+            response = client.chat.completions.create(
                 model=model,
-                messages=[{"role": "user", "content": en_prompt}],
-                temperature=1.35,
+                messages=[{"role": "user", "content": jp_prompt.strip()}],
+                temperature=1.25,
             )
-            english_text = en_response.choices[0].message.content.strip()
-            print(f"🌐 EN: {english_text}")
+            japanese_text = response.choices[0].message.content.strip()
+            print(f"🈶 JP: {japanese_text}")
 
-            ja_prompt = (
-                f"Translate the following 3-line dialogue into natural Japanese, as if spoken between two elderly women.\n"
-                f"Each line should feel like a response, but the meanings should remain subtly misaligned.\n"
-                f"The tone must be poetic, slightly surreal, and emotionally suggestive.\n"
-                f"Keep the form as dialogue, not a monologue.\n"
-                f"Use Japanese quote marks (「」) at the start of each line.\n\n{english_text}\n\nJapanese:"
-            )
-
-            ja_response = client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": ja_prompt}],
-                temperature=1.05,
-            )
-            japanese_text = ja_response.choices[0].message.content.strip()
-            print(f"🄸 JP: {japanese_text}")
-
-            lines = [line for line in japanese_text.splitlines() if line.strip()]
+            # 行整形：「」で囲まれた行のみ抽出
+            lines = [line.strip() for line in japanese_text.splitlines()
+                     if line.strip().startswith("「") and line.strip().endswith("」")]
             total_len = len("".join(lines))
             if len(lines) == 3 and 20 <= total_len <= 140:
                 increment_daily_count()
                 return {
-                    "text": japanese_text,
+                    "text": "\n".join(lines),
                     "timestamp": datetime.now().isoformat(),
-                    "english": english_text,
                 }
             else:
                 print(f"⚠️ 行数または長さ不適切（{len(lines)}行／{total_len}字）→ スキップ")
