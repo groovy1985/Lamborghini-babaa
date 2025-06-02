@@ -1,5 +1,7 @@
 import os
+import sys
 from openai import OpenAI
+from tweet_bot import tweet_post  # ✅ ここ追加
 
 # ✅ APIクライアントの初期化
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -26,7 +28,6 @@ jp_prompt = """
 
 # ✅ ババァ会話生成関数（プロンプト直流し）
 def generate_babaa_post(trigger_text: str = "") -> str:
-    # trigger_text は使わず完全無視でも良いが、状況によっては変調材料にできる（未使用なら無視可）
     res = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": jp_prompt.strip()}],
@@ -36,9 +37,6 @@ def generate_babaa_post(trigger_text: str = "") -> str:
 
 # ✅ メイン処理（GitHub Actionsから呼び出される）
 if __name__ == "__main__":
-    import sys
-
-    # オプション引数（例：リポジトリ名やトリガー種別）を拾うが、今回は使わない
     repo = sys.argv[1] if len(sys.argv) > 1 else "Last-Words-Archive"
     trigger = sys.argv[2] if len(sys.argv) > 2 else "default"
 
@@ -47,6 +45,10 @@ if __name__ == "__main__":
     print("📝 Generated Babaa Post:\n")
     print(result)
 
-    # 必要なら保存
+    # 保存（オプション）
+    os.makedirs("output", exist_ok=True)
     with open("output/babaa_generated.txt", "w", encoding="utf-8") as f:
         f.write(result)
+
+    # ✅ 投稿（Tweet）実行
+    tweet_post(result)
