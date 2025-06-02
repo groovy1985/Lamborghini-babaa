@@ -1,10 +1,10 @@
 import os
 import json
 import time
+import re
 from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
-from validate_post import is_valid_post
 
 # Load environment variables
 load_dotenv()
@@ -84,7 +84,7 @@ def generate_babaa_post():
 
             lines = [line for line in japanese_text.splitlines() if line.strip()]
             total_len = len("".join(lines))
-            if len(lines) == 3 and 20 <= total_len <= 140 and is_valid_post(japanese_text):
+            if len(lines) == 3 and 20 <= total_len <= 140:
                 increment_daily_count()
                 with open("logs/generated.jsonl", "a", encoding="utf-8") as f:
                     json.dump({
