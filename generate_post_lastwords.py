@@ -1,7 +1,7 @@
 import os
 import sys
 from openai import OpenAI
-from tweet_bot import tweet_post  # ✅ ここ追加
+import tweet_bot  # ✅ 関数を直接importせずモジュールごと安全にimport
 
 # ✅ APIクライアントの初期化
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -35,7 +35,7 @@ def generate_babaa_post(trigger_text: str = "") -> str:
     )
     return res.choices[0].message.content.strip()
 
-# ✅ メイン処理（GitHub Actionsから呼び出される）
+# ✅ メイン処理（GitHub Actionsなどから呼び出される）
 if __name__ == "__main__":
     repo = sys.argv[1] if len(sys.argv) > 1 else "Last-Words-Archive"
     trigger = sys.argv[2] if len(sys.argv) > 2 else "default"
@@ -45,10 +45,10 @@ if __name__ == "__main__":
     print("📝 Generated Babaa Post:\n")
     print(result)
 
-    # 保存（オプション）
+    # 保存（任意）
     os.makedirs("output", exist_ok=True)
     with open("output/babaa_generated.txt", "w", encoding="utf-8") as f:
         f.write(result)
 
-    # ✅ 投稿（Tweet）実行
-    tweet_post(result)
+    # ✅ 投稿（Tweet）実行：関数呼び出しも安全な形式で
+    tweet_bot.tweet_post(result)
