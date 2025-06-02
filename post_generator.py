@@ -1,3 +1,102 @@
+import os
+import time
+import random
+import json
+import re
+from datetime import datetime
+from dotenv import load_dotenv
+from openai import OpenAI
+from utils.validate_post import is_valid_post
+from utils.format_utils import trim_text
+
+# ✅ Load environment variables
+load_dotenv()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+model = os.getenv("OPENAI_MODEL", "gpt-4")
+
+# ✅ Paths and constants
+base_dir = os.path.dirname(os.path.abspath(__file__))
+style_path = os.path.join(base_dir, "babaa_styles.json")
+STYLE_USAGE_PATH = os.path.join(base_dir, "logs/style_usage.json")
+DAILY_LIMIT_PATH = os.path.join(base_dir, "logs/daily_limit.json")
+
+DAILY_LIMIT = 15
+MAX_GLOBAL_ATTEMPTS = 12
+
+# ✅ Load style list
+with open(style_path, "r", encoding="utf-8") as f:
+    styles = json.load(f)
+
+# ✅ Utility functions
+def check_daily_limit():
+    today = datetime.now().strftime("%Y-%m-%d")
+    if os.path.exists(DAILY_LIMIT_PATH):
+        with open(DAILY_LIMIT_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if data.get(today, 0) >= DAILY_LIMIT:
+            print(f"🚫 本日分の生成上限（{DAILY_LIMIT}件）に達しました")
+            return False
+    return True
+
+def increment_daily_count():
+    today = datetime.now().strftime("%Y-%m-%d")
+    data = {}
+    if os.path.exists(DAILY_LIMIT_PATH):
+        with open(DAILY_LIMIT_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    data[today] = data.get(today, 0) + 1
+    with open(DAILY_LIMIT_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+def get_unused_styles():
+    used_ids = set()
+    if os.path.exists(STYLE_USAGE_PATH):
+        try:
+            with open(STYLE_USAGE_PATH, "r", encoding="utf-8") as f:
+                used = json.load(f)
+                if isinstance(used, list):
+                    used_ids = set(used)
+        except Exception as e:
+            print(f"⚠️ style_usage.json 読み込みエラー: {e}")
+    return [style for style in styles if style["id"] not in used_ids]
+
+def mark_style_used(style_id):
+    used = []
+    if os.path.exists(STYLE_USAGE_PATH):
+        with open(STYLE_USAGE_PATH, "r", encoding="utf-8") as f:
+            try:
+                used = json.load(f)
+            except Exception as e:
+                print(f"⚠️ style_usage.json 読み込みエラー: {e}")
+    used.append(style_id)
+    with open(STYLE_USAGE_PATH, "w", encoding="utf-8") as f:
+        json.dump(used, f, ensure_ascii=False, indent=2)
+
+def select_seed(style):
+    return random.choice(["powder", "nap", "panel", "jar", "wire", "grass", "sock"])
+
+def contains_illegal_patterns(text: str) -> bool:
+    if re.search(r"[a-zA-Z]{5,}", text): return True
+    if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？（）「」ーぁ-んァ-ン0-9\s]", text): return True
+    if len(text) < 15 or len(text) > 140: return True
+    if "。" not in text and "？" not in text and "！" not in text: return True
+    if "「" not in text and "」" not in text: return True
+    return False
+
+def translate_to_japanese(english_text: str) -> str:
+    prompt = (
+        "以下の英文は日本語の老婆2人によるズレた会話です。直訳せずに、日本語として自然な会話文2行にしてください。"
+        "詩的にしない／説明しない／Poemkun風は禁止／比喩や感情禁止／140字以内。\n\n"
+        f"英文:\n{english_text}\n\n日本語："
+    )
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=1.3
+    )
+    return response.choices[0].message.content.strip()
+
+# ✅ Main function
 def generate_babaa_post():
     if not check_daily_limit():
         return None
@@ -8,28 +107,25 @@ def generate_babaa_post():
         return None
 
     random.shuffle(unused_styles)
-    remaining_attempts = MAX_GLOBAL_ATTEMPTS
+    attempts = MAX_GLOBAL_ATTEMPTS
 
     for style in unused_styles:
-        if remaining_attempts <= 0:
+        if attempts <= 0:
             break
 
         seed = select_seed(style)
         print(f"🔁 スタイル: {style['label']}｜キーワード: {seed}")
 
         try:
-            # ✅ 英語で2人のババァの会話生成（ズレ＆逸脱）
             system_prompt = (
                 "You are BabaaBot, generating fictional Japanese dialogue between two elderly women. "
-                "Their conversation is always misaligned and ends in an eccentric or surreal way. "
-                "They never resolve anything or acknowledge confusion. Avoid emotion, poetry, or clarity. "
-                "Output only two lines of Japanese dialogue. No narration."
+                "Their conversation is always disjointed, misaligned, and ends in eccentric or surreal logic. "
+                "No narration. No explanations. Output only two lines of dialogue in Japanese."
             )
             user_prompt = (
-                f"Generate one short dialogue between two elderly women. "
-                f"Each line should be broken or illogical. "
-                f"End with a bizarre or impossible conceptual link. "
-                f"Keep it under 140 Japanese characters total. Use this keyword if needed: {seed}"
+                f"Generate a short conversation between two elderly women. "
+                f"Their lines should not logically connect. End with a bizarre or impossible conclusion. "
+                f"Keyword (optional): {seed}. Keep under 140 Japanese characters total."
             )
             en_response = client.chat.completions.create(
                 model=model,
@@ -42,32 +138,31 @@ def generate_babaa_post():
             english_text = en_response.choices[0].message.content.strip()
             print(f"🌐 EN: {english_text}")
 
-            # ✅ 翻訳（詩的語彙・Poemkun風を禁止）
             translated = translate_to_japanese(english_text)
             print(f"🈶 JP: {translated}")
 
             if contains_illegal_patterns(translated):
                 print("❌ 不正パターン → 冷却")
-                remaining_attempts -= 1
+                attempts -= 1
                 continue
 
             if is_valid_post(translated):
-                translated = trim_text(translated)
+                final = trim_text(translated)
                 mark_style_used(style["id"])
                 increment_daily_count()
                 return {
-                    "text": translated,
+                    "text": final,
                     "tags": [],
                     "style_id": style["id"],
                     "timestamp": datetime.now().isoformat()
                 }
             else:
                 print("❌ 投稿冷却／構文不成立")
-                remaining_attempts -= 1
+                attempts -= 1
 
         except Exception as e:
             print(f"❌ APIエラー: {e}")
-            remaining_attempts -= 1
+            attempts -= 1
             time.sleep(2)
 
     print("🚫 全スタイル冷却・生成失敗：ポスト投稿スキップ")
