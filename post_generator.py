@@ -19,7 +19,7 @@ def check_daily_limit():
         with open(DAILY_LIMIT_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
         if data.get(today, 0) >= DAILY_LIMIT:
-            print(f"\u26d1\ufe0f \u672c\u65e5\u5206\u306e\u751f\u6210\u4e0a\u9650\uff08{DAILY_LIMIT}\u4ef6\uff09\u306b\u9054\u3057\u307e\u3057\u305f")
+            print(f"[INFO] 本日分の生成上限（{DAILY_LIMIT}件）に達しました")
             return False
     return True
 
@@ -31,7 +31,7 @@ def increment_daily_count():
             data = json.load(f)
     data[today] = data.get(today, 0) + 1
     with open(DAILY_LIMIT_PATH, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(data, f, ensure_ascii=True, indent=2)
 
 def generate_babaa_post():
     if not check_daily_limit():
@@ -65,7 +65,7 @@ def generate_babaa_post():
                 temperature=1.25,
             )
             japanese_text = response.choices[0].message.content.strip()
-            print(f"\ud835\udd38 JP: {japanese_text}")
+            print(f"[JP] {japanese_text}")
 
             lines = [line.strip() for line in japanese_text.splitlines()
                      if line.strip().startswith("「") and line.strip().endswith("」")]
@@ -77,12 +77,12 @@ def generate_babaa_post():
                     "timestamp": datetime.now().isoformat(),
                 }
             else:
-                print(f"\u26a0\ufe0f \u884c\u6570\u307e\u305f\u306f\u9577\u3055\u4e0d\u9069\u5207\uff08{len(lines)}\u884c\uff0f{total_len}\u5b57\uff09\u2192 \u30b9\u30ad\u30c3\u30d7")
+                print(f"[WARN] 行数または長さ不適切（{len(lines)}行／{total_len}字）→ スキップ")
                 time.sleep(1)
 
         except Exception as e:
-            print(f"\u274c API\u30a8\u30e9\u30fc: {e}")
+            print(f"[ERROR] APIエラー: {e}")
             time.sleep(2)
 
-    print("\ud83d\udeab \u5168\u8a66\u884c\u5931\u6557\uff1a\u6295\u7a3f\u30b9\u30ad\u30c3\u30d7")
+    print("[FAILED] 全試行失敗：投稿スキップ")
     return None
