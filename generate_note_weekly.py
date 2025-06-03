@@ -1,12 +1,13 @@
 import os
 import json
+import subprocess
 from datetime import datetime, timedelta
-from utils.validate_post import is_valid_post  # KZHX-L4.1 準拠チェック
+from utils.validate_post import is_valid_post  # KZHX-L4.1検査
 
 LOG_PATH = "logs/post_archive.json"
 OUT_DIR = "note_weekly"
 
-def load_recent_posts(days=7):
+def load_recent_valid_posts(days=7):
     if not os.path.exists(LOG_PATH):
         print("⚠️ 投稿ログが存在しません")
         return []
@@ -20,9 +21,8 @@ def load_recent_posts(days=7):
     for post in data:
         try:
             t = datetime.fromisoformat(post["timestamp"])
-            if t >= cutoff:
-                if is_valid_post(post["text"]):  # ✅ KZHX準拠のみ通過
-                    recent.append((t, post))
+            if t >= cutoff and is_valid_post(post["text"]):
+                recent.append((t, post))
         except Exception:
             continue
 
@@ -39,25 +39,15 @@ def format_post(date, post):
 ---
 """
 
+def get_week_number_filename():
+    now = datetime.now()
+    week_num = now.isocalendar()[1]
+    return f"{now.year}-W{week_num:02d}-note.md"
+
+def git_commit(path):
+    subprocess.run(["git", "add", path])
+    subprocess.run(["git", "commit", "-m", f"Add weekly note: {os.path.basename(path)}"])
+
 def generate_weekly_note():
-    posts = load_recent_posts()
-    if not posts:
-        print("❌ 今週の有効な投稿がありません（KZHX非準拠）")
-        return
-
-    out = "# 🧓 Lamborghini-babaa Weekly Note\n\n"
-    out += "※ 今週喋ったババァたちの記録（KZHX準拠のみ）\n\n"
-
-    for date, post in posts:
-        out += format_post(date, post)
-
-    os.makedirs(OUT_DIR, exist_ok=True)
-    out_path = os.path.join(OUT_DIR, f"{datetime.now().strftime('%Y-%m-%d')}-note.md")
-
-    with open(out_path, "w", encoding="utf-8") as f:
-        f.write(out)
-
-    print(f"✅ 週報を出力しました（KZHX準拠）：{out_path}")
-
-if __name__ == "__main__":
-    generate_weekly_note()
+    posts = load_recent_valid_posts()
+    i
