@@ -21,4 +21,5 @@ tweepy>=4.14.0
 # .env読み込み
 python-dotenv>=1.0.1
 
-pyyaml
+# YAML処理
+pyyaml>=6.0
