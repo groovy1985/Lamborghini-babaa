@@ -1,12 +1,12 @@
-# generate_zine_monthly.py
-
 import os
 import json
 import subprocess
 from datetime import datetime
+from utils.validate_post import is_valid_post  # ← 追加
 
 LOG_PATH = "logs/post_archive.json"
 OUT_DIR = "zine_monthly"
+WEEKLY_DIR = "note_weekly"  # ← 追加
 
 def load_monthly_posts(year, month):
     if not os.path.exists(LOG_PATH):
@@ -38,10 +38,25 @@ def format_entry(date, post):
 ---
 """
 
+def load_weekly_highlights():
+    blocks = []
+    for fname in sorted(os.listdir(WEEKLY_DIR)):
+        if not fname.endswith(".md"):
+            continue
+        fpath = os.path.join(WEEKLY_DIR, fname)
+        with open(fpath, encoding="utf-8") as f:
+            content = f.read().strip()
+        if is_valid_post(content):  # ✅ validate通過した週次だけ
+            blocks.append(f"### 📅 {fname.replace('.md', '')}\n\n{content}\n")
+    return "\n".join(blocks)
+
 def generate_zine_text(year, month, posts):
     title = f"# ZINE Vol.{month}｜喋らなかった廃墟たち（{year}年{month}月号）"
     intro = "ババァが喋った記録だけを、意味のないまま封じ込めました。\n\n---\n"
     body = "\n".join([format_entry(d, p) for d, p in posts])
+    highlights = load_weekly_highlights()
+    if highlights:
+        body += "\n## 🗓️ Weekly Highlights（KZHX-L4.1 準拠）\n\n" + highlights
     return f"{title}\n\n{intro}{body}"
 
 def export_formats(md_path, base_name):
