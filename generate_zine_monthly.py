@@ -2,11 +2,11 @@ import os
 import json
 import subprocess
 from datetime import datetime
-from utils.validate_post import is_valid_post  # ← 追加
+from utils.validate_post import is_valid_post  # 週次取り込みに必要
 
 LOG_PATH = "logs/post_archive.json"
 OUT_DIR = "zine_monthly"
-WEEKLY_DIR = "note_weekly"  # ← 追加
+WEEKLY_DIR = "note_weekly"
 
 def load_monthly_posts(year, month):
     if not os.path.exists(LOG_PATH):
@@ -43,10 +43,10 @@ def load_weekly_highlights():
     for fname in sorted(os.listdir(WEEKLY_DIR)):
         if not fname.endswith(".md"):
             continue
-        fpath = os.path.join(WEEKLY_DIR, fname)
-        with open(fpath, encoding="utf-8") as f:
+        path = os.path.join(WEEKLY_DIR, fname)
+        with open(path, encoding="utf-8") as f:
             content = f.read().strip()
-        if is_valid_post(content):  # ✅ validate通過した週次だけ
+        if is_valid_post(content):
             blocks.append(f"### 📅 {fname.replace('.md', '')}\n\n{content}\n")
     return "\n".join(blocks)
 
@@ -62,6 +62,10 @@ def generate_zine_text(year, month, posts):
 def export_formats(md_path, base_name):
     subprocess.run(["pandoc", md_path, "-o", f"{base_name}.pdf"])
     subprocess.run(["pandoc", md_path, "-o", f"{base_name}.epub"])
+
+def git_commit(path):
+    subprocess.run(["git", "add", path])
+    subprocess.run(["git", "commit", "-m", f"Add monthly ZINE: {os.path.basename(path)}"])
 
 def main():
     now = datetime.now()
@@ -82,6 +86,7 @@ def main():
         f.write(zine_text)
 
     export_formats(md_path, base_name)
+    git_commit(md_path)
 
     print(f"✅ ZINE出力完了：{md_path}, .pdf, .epub")
 
