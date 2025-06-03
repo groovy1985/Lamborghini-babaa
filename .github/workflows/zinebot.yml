@@ -31,10 +31,12 @@ jobs:
         if: github.event.schedule == '0 5 1 * *'
         run: python run_zine_pipeline.py --mode monthly
 
-      - name: ✅ Commit & Push
+      - name: ✅ Commit & Push Results
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           git add note_weekly zine_monthly
           git commit -m "📦 Auto ZINE/NB update" || echo "No changes to commit"
-          git push
+          git push origin main
+
