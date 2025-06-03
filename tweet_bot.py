@@ -39,3 +39,15 @@ if post and "text" in post:
         print(f"❌ 投稿失敗: {e}")
 else:
     print("🚫 投稿するポストが生成されませんでした")
+
+
+# ✅ 投稿完了後にログを残す
+from utils.post_logger import log_post
+
+# ... inside try block after successful tweet
+log_post(
+    text=post["text"],
+    tags=post.get("tags", ["未知", "分類不可"]),
+    kz_score=post.get("kz_score", 90.0)  # デフォルト値つき
+)
+
