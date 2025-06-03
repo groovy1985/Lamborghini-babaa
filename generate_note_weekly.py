@@ -1,8 +1,7 @@
-# generate_note_weekly.py
-
 import os
 import json
 from datetime import datetime, timedelta
+from utils.validate_post import is_valid_post  # KZHX-L4.1 準拠チェック
 
 LOG_PATH = "logs/post_archive.json"
 OUT_DIR = "note_weekly"
@@ -22,7 +21,8 @@ def load_recent_posts(days=7):
         try:
             t = datetime.fromisoformat(post["timestamp"])
             if t >= cutoff:
-                recent.append((t, post))
+                if is_valid_post(post["text"]):  # ✅ KZHX準拠のみ通過
+                    recent.append((t, post))
         except Exception:
             continue
 
@@ -42,11 +42,11 @@ def format_post(date, post):
 def generate_weekly_note():
     posts = load_recent_posts()
     if not posts:
-        print("❌ 今週の投稿がありません")
+        print("❌ 今週の有効な投稿がありません（KZHX非準拠）")
         return
 
     out = "# 🧓 Lamborghini-babaa Weekly Note\n\n"
-    out += "※ 今週喋ったババァたちの記録（意味はない）\n\n"
+    out += "※ 今週喋ったババァたちの記録（KZHX準拠のみ）\n\n"
 
     for date, post in posts:
         out += format_post(date, post)
@@ -57,7 +57,7 @@ def generate_weekly_note():
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(out)
 
-    print(f"✅ 週報を出力しました：{out_path}")
+    print(f"✅ 週報を出力しました（KZHX準拠）：{out_path}")
 
 if __name__ == "__main__":
     generate_weekly_note()
