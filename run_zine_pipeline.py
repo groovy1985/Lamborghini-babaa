@@ -10,7 +10,7 @@ LOG_PATH = "logs/post_archive.json"
 NOTE_DIR = "note_weekly"
 ZINE_DIR = "zine_monthly"
 
-# 週次ノート用
+# WEEKLY
 def load_recent_valid_posts(days=7):
     with open(LOG_PATH, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -67,7 +67,7 @@ def generate_weekly_note():
     git_commit(md_path)
     git_commit(yaml_path)
 
-# 月次ZINE用
+# MONTHLY
 def load_monthly_posts(year, month):
     with open(LOG_PATH, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -88,8 +88,15 @@ def extract_weekly_highlights():
         path = os.path.join(NOTE_DIR, fname)
         with open(path, encoding="utf-8") as f:
             content = f.read().strip()
-        if is_valid_post(content):
-            results.append((fname, content))
+
+        # 括弧内の各発話ブロックに対して is_valid_post をかける
+        blocks = content.split("---")
+        for block in blocks:
+            lines = [line.strip()[2:] for line in block.splitlines() if line.strip().startswith("> ")]
+            if lines:
+                joined = "\n".join(lines)
+                if is_valid_post(joined):
+                    results.append((fname, block.strip()))
     return results
 
 def generate_monthly_zine():
@@ -142,12 +149,12 @@ def generate_monthly_zine():
     git_commit(md_path)
     git_commit(yaml_path)
 
-# 共通：Git commit
+# GIT
 def git_commit(path):
     subprocess.run(["git", "add", path])
     subprocess.run(["git", "commit", "-m", f"Auto: update {os.path.basename(path)}"], check=False)
 
-# CLIエントリーポイント
+# CLI
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["weekly", "monthly"], required=True)
