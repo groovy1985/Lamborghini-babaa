@@ -1,7 +1,12 @@
 import os
+import sys
 import tweepy
 from dotenv import load_dotenv
 from post_generator import generate_babaa_post
+
+# ✅ 相対パスから utils を読み込めるようにする
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+from utils.post_logger import log_post  # ← ログ記録関数の読み込み
 
 # ✅ 環境変数の読み込み
 load_dotenv()
@@ -30,24 +35,20 @@ if post and "text" in post:
             consumer_secret=get_env("TWITTER_API_SECRET"),
             access_token=get_env("TWITTER_ACCESS_TOKEN"),
             access_token_secret=get_env("TWITTER_ACCESS_SECRET"),
-            bearer_token=get_env("TWITTER_BEARER_TOKEN")  # FreeプランでもOK
+            bearer_token=get_env("TWITTER_BEARER_TOKEN")
         )
 
         response = client.create_tweet(text=post['text'])
         print(f"✅ 投稿完了: https://twitter.com/user/status/{response.data['id']}")
+
+        # ✅ 投稿成功時のみログを保存
+        log_post(
+            text=post["text"],
+            tags=post.get("tags", ["未知", "分類不可"]),
+            kz_score=post.get("kz_score", 90.0)
+        )
+
     except Exception as e:
         print(f"❌ 投稿失敗: {e}")
 else:
     print("🚫 投稿するポストが生成されませんでした")
-
-
-# ✅ 投稿完了後にログを残す
-from utils.post_logger import log_post
-
-# ... inside try block after successful tweet
-log_post(
-    text=post["text"],
-    tags=post.get("tags", ["未知", "分類不可"]),
-    kz_score=post.get("kz_score", 90.0)  # デフォルト値つき
-)
-
