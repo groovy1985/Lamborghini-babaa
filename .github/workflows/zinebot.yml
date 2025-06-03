@@ -4,7 +4,7 @@ on:
   schedule:
     - cron: "0 4 * * 2"     # 毎週火曜 JST → weekly
     - cron: "0 5 1 * *"     # 毎月1日 JST → monthly
-  workflow_dispatch:
+  workflow_dispatch:        # 手動実行も可能
 
 jobs:
   build:
@@ -23,13 +23,8 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: 🗓 Run Weekly Note Generator
-        if: github.event.schedule == '0 4 * * 2'
-        run: python run_zine_pipeline.py --mode weekly
-
-      - name: 🗓 Run Monthly ZINE Generator
-        if: github.event.schedule == '0 5 1 * *'
-        run: python run_zine_pipeline.py --mode monthly
+      - name: 🗓 Run Zine Pipeline (auto-detect mode)
+        run: python run_zine_pipeline.py
 
       - name: ✅ Commit & Push Results
         run: |
@@ -39,4 +34,3 @@ jobs:
           git add note_weekly zine_monthly
           git commit -m "📦 Auto ZINE/NB update" || echo "No changes to commit"
           git push origin main
-
