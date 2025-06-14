@@ -2,7 +2,7 @@ import re
 
 def is_valid_post(text: str) -> bool:
     """
-    validate_post.py｜構文国家：KZHX-L2 準拠検証器
+    validate_post.py｜構文国家：KZHX-L2 改訂版検証器
 
     評価基準：
     - 構文の自然崩壊があること（意味不明ではない）
@@ -15,7 +15,7 @@ def is_valid_post(text: str) -> bool:
         return False
 
     lines = [line for line in text.strip().splitlines() if line.strip()]
-    if len(lines) != 3:
+    if len(lines) not in (2, 3, 4):
         return False
 
     # ❌ 記号・半角・英語・乱数・機械語パターン
@@ -36,13 +36,23 @@ def is_valid_post(text: str) -> bool:
     if len(re.findall(r"(た|だ|です|ました)[。！？]", text)) >= 3:
         return False
 
+    # ❌ 曖昧な語尾での破綻パターン検出（例：「ら。」や「さ。」など）
+    if re.search(r"[らさ]\s*[。！？]", text):
+        return False
+
     # ❌ 宣言的短文（CM調コピー）
     if sum(text.count(p) for p in "。！？") <= 1 and len(text) < 40:
         return False
 
     # ✅ 会話性チェック（応答の構造を最低限満たす）
-    reply_hints = ["それで", "やっぱり", "うちも", "たしかに", "でも", "じゃあ", "だから", "のに", "ってこと", "ね", "かも", "よね"]
-    if not any(hint in lines[1] for hint in reply_hints) and not any(hint in lines[2] for hint in reply_hints):
+    reply_hints = [
+        "それで", "やっぱり", "うちも", "たしかに", "でも", "じゃあ", "だから", "のに", "ってこと", "ね", "かも", "よね",
+        "まぁ", "ちなみに", "どうせ", "一応", "言うても", "いやもう", "ほんとさ", "なのに", "またかよ", "よってさ",
+        "ところで", "結果的に", "あれも", "そんで", "してさ", "つまりさ", "まじで", "なんだか", "そんなもんさ",
+        "思ったけど", "まぁいいけど", "言わないけど", "ありえんけど", "別にね", "結局さ", "そうかもね", "つっても",
+        "どうでも", "知ってたけど", "それなのに", "気づいてたけど", "まぁまぁね", "話戻すけど", "ついでにさ"
+    ]
+    if not any(hint in lines[-1] or hint in lines[-2] for hint in reply_hints):
         return False
 
     # ✅ 意味の過剰な連続性を抑制（語彙共有率が高すぎるものを除外）
@@ -51,7 +61,7 @@ def is_valid_post(text: str) -> bool:
         b_set = set(re.findall(r'\w+', b))
         return len(a_set & b_set) / max(len(a_set), 1)
 
-    if shared_ratio(lines[0], lines[2]) > 0.5:
+    if len(lines) >= 3 and shared_ratio(lines[0], lines[2]) > 0.35:
         return False
 
     return True
