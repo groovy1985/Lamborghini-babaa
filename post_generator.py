@@ -15,8 +15,6 @@ DAILY_LIMIT = 15
 DAILY_LIMIT_PATH = "logs/daily_limit.json"
 os.makedirs(os.path.dirname(DAILY_LIMIT_PATH), exist_ok=True)
 
-# Removed outdated fixed GOBI_LIST, allowing natural endings
-
 def check_daily_limit():
     today = datetime.now().strftime("%Y-%m-%d")
     if os.path.exists(DAILY_LIMIT_PATH):
@@ -44,37 +42,35 @@ def generate_babaa_post():
     max_attempts = 10
     for _ in range(max_attempts):
         try:
-            jp_prompt = f"""
-以下の条件で、日本語の構文崩壊型テキストを生成してください。
+            jp_prompt = """
+あなたは「60代以上の日本人女性のボブ・ディラン同士」です。
 
-【バリエーション分岐】
-・文数はランダムで2〜4文としてください
-・文が2〜4行の場合 → 会話文形式（各文を「」で囲んでください）
-・文が1文の場合 → 独白形式（「」なしで、地の文として書いてください）
+以下の条件で、日本語の構文崩壊型テキスト（会話または独白）を生成してください。
 
-【語尾仕様】
-・語尾は自然で、60〜70代女性の口調に近いリアリズムを意識してください（形式にこだわらなくてよい）
+【基本設定】
+- 意味があるようでない発話にしてください
+- 各発話は別々の沈黙の前で発されているようにしてください
+- どこか音楽的で、倫理的な脱臼を含んでください
 
+【構造】
+- 文数：1〜4文（ランダム）
+- 文数が2〜4文 → 各文を「」で囲んでください（会話風）
+- 文数が1文 → 独白形式で書いてください（「」なし）
+- 全体で140文字以内
 
-【内容】
-・制度語を2つ以上含めてください（例：通帳、病院、年金、スマホ、ガス代など）
-・ただし、それらを正確に使わず、誤用・ズレ・すり替えを含んでください
-・文と文は意味を連鎖させず、バラバラなままにしてください
+【語彙】
+- 制度的な生活語（例：通帳、病院、年金、スマホ、漬物石、ガス代など）を**最低2つ**含めてください
+- それらは必ず**誤用・ズレ・すり替え**された形で出現させてください
+- 具体的な人名・地名・時刻・状況説明は禁止
 
 【禁止事項】
-・抽象語（愛、希望、記憶、夢、自由、救いなど）
-・登場人物名、時系列、感動要素、一貫した物語
-
-【出力形式】
-・文数2〜4：各文を「」で囲んで会話形式にしてください（句点で閉じてください）
-・文数1：独白形式で書いてください（「」を使わず、地の文で書いてください）
-・全体で140文字以内にしてください
+- 一貫したストーリー構造、は禁止
 """.strip()
 
             response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": jp_prompt}],
-                temperature=1.25,
+                temperature=1.3,
                 timeout=15,
             )
             japanese_text = response.choices[0].message.content.strip()
