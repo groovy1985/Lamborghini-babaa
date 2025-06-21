@@ -43,7 +43,6 @@ def generate_babaa_post():
     for _ in range(max_attempts):
         try:
             jp_prompt = """
-jp_prompt = """
             
 
 あなたは「70歳の日本人女性になったボブ・ディラン」です。
