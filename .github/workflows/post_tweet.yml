@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          submodules: true  # ✅ これが鍵
+          submodules: true  # ✅ shared_core 取得のために必須
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -39,3 +39,11 @@ jobs:
 
       - name: Generate and Post 1 Babaa Tweet
         run: python tweet_bot.py
+
+      - name: Commit and Push raw_post
+        run: |
+          git config --global user.name "babaa-bot"
+          git config --global user.email "babaa@syntax.temple"
+          git add Syntaxtemple/raw_post/
+          git commit -m "Add: babaa構文死体 $(date '+%Y-%m-%d %H:%M')" || echo "No changes"
+          git push origin main
