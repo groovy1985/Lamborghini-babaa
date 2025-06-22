@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          submodules: true  # ✅ shared_core 取得のために必須
+          submodules: true
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -40,10 +40,14 @@ jobs:
       - name: Generate and Post 1 Babaa Tweet
         run: python tweet_bot.py
 
-      - name: Commit and Push raw_post
+      - name: Push raw_post to control_center
         run: |
-          git config --global user.name "babaa-bot"
-          git config --global user.email "babaa@syntax.temple"
-          git add Syntaxtemple/raw_post/
+          git clone https://x-access-token:${{ secrets.CONTROL_CENTER_PAT }}@github.com/groovy1985/control_center.git
+          mkdir -p control_center/Syntaxtemple/raw_post/baba/
+          cp Syntaxtemple/raw_post/baba/*.txt control_center/Syntaxtemple/raw_post/baba/
+          cd control_center
+          git config user.name "babaa-bot"
+          git config user.email "babaa@syntax.temple"
+          git add Syntaxtemple/raw_post/baba/
           git commit -m "Add: babaa構文死体 $(date '+%Y-%m-%d %H:%M')" || echo "No changes"
           git push origin main
