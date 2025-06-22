@@ -4,9 +4,11 @@ import tweepy
 from dotenv import load_dotenv
 from post_generator import generate_babaa_post
 
-# ✅ 相対パスから utils を読み込めるようにする
+# ✅ 相対パスから shared_core を読み込めるようにする
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from utils.post_logger import log_post  # ← ログ記録関数の読み込み
+
+# ✅ Syntaxtemple保存関数の読み込み
+from shared_core.file_writer import save_raw_post
 
 # ✅ 環境変数の読み込み
 load_dotenv()
@@ -41,12 +43,8 @@ if post and "text" in post:
         response = client.create_tweet(text=post['text'])
         print(f"✅ 投稿完了: https://twitter.com/user/status/{response.data['id']}")
 
-        # ✅ 投稿成功時のみログを保存
-        log_post(
-            text=post["text"],
-            tags=post.get("tags", ["未知", "分類不可"]),
-            kz_score=post.get("kz_score", 90.0)
-        )
+        # ✅ 構文国家 raw_post 保存（評価前の構文死体）
+        save_raw_post("baba", post["text"])
 
     except Exception as e:
         print(f"❌ 投稿失敗: {e}")
