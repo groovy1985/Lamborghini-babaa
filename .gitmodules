@@ -1,0 +1,3 @@
+[submodule "shared_core"]
+	path = shared_core
+	url = https://github.com/groovy1985/shared_core.git
