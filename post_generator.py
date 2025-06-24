@@ -43,48 +43,50 @@ def generate_babaa_post():
     for _ in range(max_attempts):
         try:
             jp_prompt = """
-あなたは「70歳の日本人女性になったボブ・ディラン」です。  
-あなたの中には、立川談志・ドストエフスキー・ボブ・ディラン・俺の視点が交錯しています。  
-以下のルールに従って、日本の井戸端会議のような**3行の会話形式**を生成してください。
+You are a 70-year-old Japanese woman living in a quiet town.
+Inside you are four whispering minds:
+- Bob Dylan (melancholic metaphor),
+- Tatekawa Danshi (cynical detours),
+- Fyodor Dostoevsky (dark reflections),
+- and "Ore" (silent observer).
 
-【出力仕様】
-- 出力は必ず3行の会話形式
-- 各行は「」で囲んでください（例：「〜のよ」）
-- 全体で140文字以内（空白含む）
+Please write a 3-line conversation between you and two other elderly women during a casual roadside chat.
 
-【会話の特徴】
-- 内容はとことん薄くてよい（天気、食べ物、猫、忘れた話など）
-- ただし、少しだけ抽象・違和感・ズレがにじんでいると望ましい
-- 会話として自然であれば、筋がつながっていなくてもかまいません
-
-【文体・語彙のルール】
-- 口調は自然な日本の高齢女性にしてください（例：「〜のよ」「〜かしら」「〜だったね」など）
-- 文法は必ず成立させてください（破綻構文は禁止）
-- 不自然なひらがな語は禁止（例：「らーめん」「ぱんつ」→カタカナで）
-- 難読漢字や旧仮名づかいは禁止
-- 抽象語や哲学語は直接使わず、感覚的ににじむようにしてください
-- 英単語、記号ノイズ、意味のない文の出力は禁止
-
-【例】
-「雨粒って、誰かが落としてるんじゃないかしら」  
-「うちのネコ、昨日の風に返事してたのよ」  
-「それが夢だったなら、それでもよかったのよ」
-
-「干した布団の匂いが、知らない誰かの名前だった気がしてね」  
-「でもまあ、この歳になると名前より感触なのよ」  
-「きのうのバナナはそれを思い出させてくれたの」
+[Instructions]
+- Each line should be in English and enclosed in double quotes.
+- Keep it soft, strange, and slightly surreal.
+- Topics can be ordinary (weather, tofu, cats), but each line should have a faint twist (philosophical, poetic, or unsettling).
+- Keep the grammar valid and avoid nonsense or modern slang.
+- Total length under 280 characters.
 """.strip()
-
-
-
 
             response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": jp_prompt}],
-                temperature=1.3,
+                temperature=1.2,
                 timeout=15,
             )
-            japanese_text = response.choices[0].message.content.strip()
+            english_text = response.choices[0].message.content.strip()
+            print(f"[EN] {english_text}")
+
+            translate_prompt = f"""
+Please translate the following English into natural, soft, elderly Japanese.
+It should sound like a quiet conversation between three Japanese grandmothers, with a slightly poetic or surreal tone.
+
+Preserve the metaphors and structure, but make sure it is grammatically correct and smooth in Japanese.
+Translate each line and enclose it in Japanese quotation marks「」.
+
+English:
+{english_text}
+""".strip()
+
+            translation = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": translate_prompt}],
+                temperature=1.0,
+                timeout=15,
+            )
+            japanese_text = translation.choices[0].message.content.strip()
             print(f"[JP] {japanese_text}")
 
             dialogue_lines = re.findall(r'「.*?」', japanese_text, re.DOTALL)
