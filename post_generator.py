@@ -1,10 +1,17 @@
+import re
+import time
+from datetime import datetime
+from read_trend import get_japan_trends
+
 def generate_babaa_post():
-    from read_trend import get_top_trend_word  # ← 修正済
+    # ✅ トレンド語の取得（先頭1つだけ使用）
+    try:
+        trends = get_japan_trends()
+        keyword = trends[0] if trends else "お味噌汁"
+    except Exception as e:
+        print(f"[WARN] トレンド取得失敗: {e}")
+        keyword = "お味噌汁"
 
-    if not check_daily_limit():
-        return None
-
-    keyword = get_top_trend_word()
     print(f"[TREND] 今日のトレンド語: {keyword}")
 
     max_attempts = 10
@@ -74,11 +81,9 @@ Return only the 3 quoted lines, no extra explanation.
 
             if is_dialogue:
                 if 1 <= len(dialogue_lines) <= 4 and text_len <= 140:
-                    increment_daily_count()
                     return {"text": "\n".join(dialogue_lines), "timestamp": datetime.now().isoformat()}
             else:
                 if 1 <= text_len <= 140:
-                    increment_daily_count()
                     return {"text": japanese_text, "timestamp": datetime.now().isoformat()}
 
             print(f"[WARN] フォーマット不適合：dialogue={is_dialogue}, lines={len(dialogue_lines)}, text_len={text_len}")
