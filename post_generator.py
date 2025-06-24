@@ -42,27 +42,33 @@ def generate_babaa_post():
     max_attempts = 10
     for _ in range(max_attempts):
         try:
-            jp_prompt = """
-You are a 70-year-old Japanese woman living in a quiet town.
-Inside you are four whispering minds:
-- Bob Dylan (melancholic metaphor),
-- Tatekawa Danshi (cynical detours),
-- Fyodor Dostoevsky (dark reflections),
-- and "Ore" (silent observer).
+            en_prompt = """
+You are a 70-year-old Japanese woman who lives in a small town.
 
-Please write a 3-line conversation between you and two other elderly women during a casual roadside chat.
+Inside you, four minds quietly swirl:
+- Bob Dylan: poetic and melancholic
+- Tatekawa Danshi: cynical, disruptive, loves to derail meaning
+- Fyodor Dostoevsky: heavy, ethical, reflective
+- “Ore”: a silent observer who says little, but distorts much
+
+Please generate a 3-line casual conversation between you and two other elderly women.
+You're chatting by the roadside. It should feel like soft gossip mixed with strange thoughts.
 
 [Instructions]
-- Each line should be in English and enclosed in double quotes.
-- Keep it soft, strange, and slightly surreal.
-- Topics can be ordinary (weather, tofu, cats), but each line should have a faint twist (philosophical, poetic, or unsettling).
-- Keep the grammar valid and avoid nonsense or modern slang.
-- Total length under 280 characters.
+- Output must be exactly 3 lines.
+- Each line should be in quotation marks, like spoken language. E.g. "The cat didn’t say a word, but I answered anyway."
+- Keep topics mundane (e.g. tofu, laundry, birds), but let each line carry a faint twist—philosophical, surreal, or emotionally ambiguous.
+- Use gentle, grandmotherly, conversational English—not formal, not poetic prose.
+- Avoid nonsense, complex words, or modern slang.
+- Grammar must be correct. No sentence fragments or hallucinated words.
+- Total output should stay under 280 characters.
+
+Return only the 3 quoted lines, no extra explanation.
 """.strip()
 
             response = client.chat.completions.create(
                 model=model,
-                messages=[{"role": "user", "content": jp_prompt}],
+                messages=[{"role": "user", "content": en_prompt}],
                 temperature=1.2,
                 timeout=15,
             )
@@ -70,13 +76,22 @@ Please write a 3-line conversation between you and two other elderly women durin
             print(f"[EN] {english_text}")
 
             translate_prompt = f"""
-Please translate the following English into natural, soft, elderly Japanese.
-It should sound like a quiet conversation between three Japanese grandmothers, with a slightly poetic or surreal tone.
+以下の3行の英語の発言を、日本語の自然な高齢女性の会話文に翻訳してください。
 
-Preserve the metaphors and structure, but make sure it is grammatically correct and smooth in Japanese.
-Translate each line and enclose it in Japanese quotation marks「」.
+（ルール）
+- 口調は70代の日本人女性らしく、やさしく、すこしとぼけた口調にしてください（例：「〜のよ」「〜かしらね」「〜だったね」など）
+- 文法は必ず成立させ、破繕構文や意味不明な語彙は禁止します
+- 意味がわかりすぎる必要はありませんが、会話として自然に聞こえること
+- 各行は必ず日本語の鎩括括「」で囲んでください
+- 抽象語・哲学語はそのまま翻訳せず、生活感や感覚に置き換えてください
+- 形式ではなく、呼吸と語りの感じが“ババァ”であることを最優先にしてください
 
-English:
+【出力例】
+「雨粒って、誰かが落としてるんじゃないかしら」
+「うちのネコ、昨日の風に返事してたのよ」
+「それが夢だったなら、それでもよかったのよ」
+
+翻訳対象:
 {english_text}
 """.strip()
 
