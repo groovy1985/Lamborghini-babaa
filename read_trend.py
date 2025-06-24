@@ -20,6 +20,11 @@ def get_japan_trends(top_n=10):
     filtered = [t for t in all_trends if not t.startswith("#")]
     return filtered[:top_n]
 
+def get_top_trend_word():
+    """1位のトレンド語のみを取得（投稿用）"""
+    trends = get_japan_trends(top_n=1)
+    return trends[0] if trends else "トレンド"
+
 def save_trend_words(words):
     today = datetime.now().strftime("%Y-%m-%d")
     path = os.path.join(SAVE_DIR, f"{today}.json")
