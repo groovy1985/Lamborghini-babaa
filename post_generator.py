@@ -1,26 +1,49 @@
-import re
+
+import os
+import json
 import time
 from datetime import datetime
-from read_trend import get_japan_trends
+from dotenv import load_dotenv
+from openai import OpenAI
+import re
 
-import openai
-client = openai  # ← これを忘れてた
+# Load environment variables
+load_dotenv()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+model = os.getenv("OPENAI_MODEL", "gpt-4")
+
+DAILY_LIMIT = 15
+DAILY_LIMIT_PATH = "logs/daily_limit.json"
+os.makedirs(os.path.dirname(DAILY_LIMIT_PATH), exist_ok=True)
+
+def check_daily_limit():
+    today = datetime.now().strftime("%Y-%m-%d")
+    if os.path.exists(DAILY_LIMIT_PATH):
+        with open(DAILY_LIMIT_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if data.get(today, 0) >= DAILY_LIMIT:
+            print(f"[INFO] 本日分の生成上限（{DAILY_LIMIT}件）に達しました")
+            return False
+    return True
+
+def increment_daily_count():
+    today = datetime.now().strftime("%Y-%m-%d")
+    data = {}
+    if os.path.exists(DAILY_LIMIT_PATH):
+        with open(DAILY_LIMIT_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    data[today] = data.get(today, 0) + 1
+    with open(DAILY_LIMIT_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=True, indent=2)
 
 def generate_babaa_post():
-    # ✅ トレンド語の取得（先頭1つだけ使用）
-    try:
-        trends = get_japan_trends()
-        keyword = trends[0] if trends else "お味噌汁"
-    except Exception as e:
-        print(f"[WARN] トレンド取得失敗: {e}")
-        keyword = "お味噌汁"
-
-    print(f"[TREND] 今日のトレンド語: {keyword}")
+    if not check_daily_limit():
+        return None
 
     max_attempts = 10
     for _ in range(max_attempts):
         try:
-            en_prompt = f"""
+            en_prompt = """
 You are a 70-year-old Japanese woman who lives in a small town.
 
 Inside you, four minds quietly swirl:
@@ -37,9 +60,9 @@ You're chatting by the roadside. It should feel like soft gossip mixed with stra
 - Each line should be in quotation marks, like spoken language. E.g. "The cat didn’t say a word, but I answered anyway."
 - Keep topics mundane (e.g. tofu, laundry, birds), but let each line carry a faint twist—philosophical, surreal, or emotionally ambiguous.
 - Use gentle, grandmotherly, conversational English—not formal, not poetic prose.
+- Avoid nonsense, complex words, or modern slang.
 - Grammar must be correct. No sentence fragments or hallucinated words.
-- Total output must stay under 280 characters.
-- **Use the word "{keyword}" naturally in at least one line.**
+- Total output should stay under 280 characters.
 
 Return only the 3 quoted lines, no extra explanation.
 """.strip()
@@ -63,7 +86,11 @@ Return only the 3 quoted lines, no extra explanation.
 - 各行は必ず日本語の鎩括括「」で囲んでください
 - 抽象語・哲学語はそのまま翻訳せず、生活感や感覚に置き換えてください
 - 形式ではなく、呼吸と語りの感じが“ババァ”であることを最優先にしてください
-- 必ずどこかの1行にこの言葉を含めてください：「{keyword}」
+
+【出力例】
+「雨粒って、誰かが落としてるんじゃないかしら」
+「うちのネコ、昨日の風に返事してたのよ」
+「それが夢だったなら、それでもよかったのよ」
 
 翻訳対象:
 {english_text}
@@ -84,9 +111,11 @@ Return only the 3 quoted lines, no extra explanation.
 
             if is_dialogue:
                 if 1 <= len(dialogue_lines) <= 4 and text_len <= 140:
+                    increment_daily_count()
                     return {"text": "\n".join(dialogue_lines), "timestamp": datetime.now().isoformat()}
             else:
                 if 1 <= text_len <= 140:
+                    increment_daily_count()
                     return {"text": japanese_text, "timestamp": datetime.now().isoformat()}
 
             print(f"[WARN] フォーマット不適合：dialogue={is_dialogue}, lines={len(dialogue_lines)}, text_len={text_len}")
@@ -98,3 +127,4 @@ Return only the 3 quoted lines, no extra explanation.
 
     print("[FAILED] 全試行失敗：投稿スキップ")
     return None
+
