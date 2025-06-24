@@ -57,9 +57,10 @@ Please generate a 3-line casual conversation between you and two other elderly w
 You're chatting by the roadside. It should feel like soft gossip mixed with strange thoughts.
 
 [Instructions]
+- You must include the word "{keyword}" in one of the lines. No exceptions.
 - Output must be exactly 3 lines.
 - Each line should be in quotation marks, like spoken language. E.g. "The cat didn’t say a word, but I answered anyway."
-- Keep topics mundane (e.g. tofu, laundry, birds), but let each line carry a faint twist—philosophical, surreal, or emotionally ambiguous.
+- Keep topics mundane , but let each line carry a faint twist—philosophical, surreal, or emotionally ambiguous.
 - Use gentle, grandmotherly, conversational English—not formal, not poetic prose.
 - Avoid nonsense, complex words, or modern slang.
 - Grammar must be correct. No sentence fragments or hallucinated words.
@@ -87,6 +88,8 @@ Return only the 3 quoted lines, no extra explanation.
 - 各行は必ず日本語の鎩括括「」で囲んでください
 - 抽象語・哲学語はそのまま翻訳せず、生活感や感覚に置き換えてください
 - 形式ではなく、呼吸と語りの感じが“ババァ”であることを最優先にしてください
+- 必ずどこかの1行にこの言葉を含めてください：「{keyword}」
+
 
 【出力例】
 「雨粒って、誰かが落としてるんじゃないかしら」
