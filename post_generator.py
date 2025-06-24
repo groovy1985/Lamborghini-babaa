@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
+from read_trend import get_top_trend_word
 import re
 
 # Load environment variables
