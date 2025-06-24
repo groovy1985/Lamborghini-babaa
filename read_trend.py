@@ -12,6 +12,7 @@ def get_japan_trends(top_n=10):
     url = "https://trends24.in/japan/"
     headers = {"User-Agent": "Mozilla/5.0"}  # スクレイピング対策回避
     res = requests.get(url, headers=headers)
+    res.encoding = "utf-8"  # ← ★ここを追加するだけ！
     if res.status_code != 200:
         raise Exception(f"トレンド取得失敗: {res.status_code}")
     soup = BeautifulSoup(res.text, 'html.parser')
