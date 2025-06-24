@@ -1,4 +1,4 @@
-# read_trend.py - trends24.inから日本のトレンドを取得（API不要）
+# read_trend.py - trends24.inから日本のトレンド（#除外）を取得・保存
 import os
 import json
 import requests
@@ -10,14 +10,15 @@ os.makedirs(SAVE_DIR, exist_ok=True)
 
 def get_japan_trends(top_n=10):
     url = "https://trends24.in/japan/"
-    headers = {"User-Agent": "Mozilla/5.0"}  # スクレイピング対策回避
+    headers = {"User-Agent": "Mozilla/5.0"}
     res = requests.get(url, headers=headers)
-    res.encoding = "utf-8"  # ← ★ここを追加するだけ！
-    if res.status_code != 200:
-        raise Exception(f"トレンド取得失敗: {res.status_code}")
+    res.encoding = "utf-8"  # 文字化け防止
     soup = BeautifulSoup(res.text, 'html.parser')
-    trends = [tag.text.strip() for tag in soup.select("ol.trend-card__list li a")]
-    return trends[:top_n]
+
+    # トレンド語の抽出とフィルタ（#付き除外）
+    all_trends = [tag.text.strip() for tag in soup.select("ol.trend-card__list li a")]
+    filtered = [t for t in all_trends if not t.startswith("#")]
+    return filtered[:top_n]
 
 def save_trend_words(words):
     today = datetime.now().strftime("%Y-%m-%d")
