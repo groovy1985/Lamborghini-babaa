@@ -1,5 +1,5 @@
 def generate_babaa_post():
-    from trend_fetcher import get_top_trend_word
+    from read_trend import get_top_trend_word  # ← 修正済
 
     if not check_daily_limit():
         return None
