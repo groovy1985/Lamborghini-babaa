@@ -1,4 +1,3 @@
-
 import os
 import json
 import time
@@ -41,10 +40,13 @@ def generate_babaa_post():
     if not check_daily_limit():
         return None
 
+    keyword = get_top_trend_word()
+    print(f"[TREND] 今日のトレンド語: {keyword}")
+
     max_attempts = 10
     for _ in range(max_attempts):
         try:
-            en_prompt = """
+            en_prompt = f"""
 You are a 70-year-old Japanese woman who lives in a small town.
 
 Inside you, four minds quietly swirl:
@@ -90,7 +92,6 @@ Return only the 3 quoted lines, no extra explanation.
 - 形式ではなく、呼吸と語りの感じが“ババァ”であることを最優先にしてください
 - 必ずどこかの1行にこの言葉を含めてください：「{keyword}」
 
-
 【出力例】
 「雨粒って、誰かが落としてるんじゃないかしら」
 「うちのネコ、昨日の風に返事してたのよ」
@@ -131,4 +132,3 @@ Return only the 3 quoted lines, no extra explanation.
 
     print("[FAILED] 全試行失敗：投稿スキップ")
     return None
-
