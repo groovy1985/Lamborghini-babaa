@@ -3,6 +3,9 @@ import time
 from datetime import datetime
 from read_trend import get_japan_trends
 
+import openai
+client = openai  # ← これを忘れてた
+
 def generate_babaa_post():
     # ✅ トレンド語の取得（先頭1つだけ使用）
     try:
