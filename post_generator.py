@@ -40,8 +40,8 @@ def generate_babaa_post():
     if not check_daily_limit():
         return None
 
-    keyword = get_top_trend_word()
-    max_attempts = 5
+    keyword = get_top_trend_word()[:10]  # 長すぎるトレンド語を制限
+    max_attempts = 12  # 増加（元は5）
 
     for _ in range(max_attempts):
         try:
@@ -84,7 +84,7 @@ Return only the 3 quoted lines, no extra explanation.
 
 （ルール）
 - 口調は70代の日本人女性らしく、やさしく、すこしとぼけた口調にしてください（例：「〜のよ」「〜かしらね」「〜だったね」など）
-- 文法は必ず成立させ、破繕構文や意味不明な語彙は禁止します
+- 文法は必ず成立させ、破綻構文や意味不明な語彙は禁止します
 - 意味がわかりすぎる必要はありませんが、会話として自然に聞こえること
 - 各行は必ず日本語の鎩括括「」で囲んでください
 - 抽象語・哲学語はそのまま翻訳せず、生活感や感覚に置き換えてください
@@ -113,12 +113,15 @@ Return only the 3 quoted lines, no extra explanation.
             text_len = len(re.sub(r'\s', '', japanese_text))
             is_dialogue = bool(dialogue_lines)
 
+            # DEBUG出力（必要あれば）
+            # print(f"[DEBUG] dialogue_lines={dialogue_lines}, text_len={text_len}, is_dialogue={is_dialogue}")
+
             if is_dialogue:
-                if 1 <= len(dialogue_lines) <= 4 and text_len <= 140:
+                if 1 <= len(dialogue_lines) <= 4 and text_len <= 145:  # やや緩和
                     increment_daily_count()
                     return {"text": "\n".join(dialogue_lines), "timestamp": datetime.now().isoformat()}
             else:
-                if 1 <= text_len <= 140:
+                if 1 <= text_len <= 145:
                     increment_daily_count()
                     return {"text": japanese_text, "timestamp": datetime.now().isoformat()}
 
