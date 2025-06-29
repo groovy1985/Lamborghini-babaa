@@ -35,7 +35,7 @@ def main():
         user = client.get_user(username=account).data
         tweets = client.get_users_tweets(
             user.id,
-            max_results=10,
+            max_results=3,
             tweet_fields=["created_at"]
         ).data or []
 
