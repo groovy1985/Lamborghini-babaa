@@ -52,13 +52,14 @@ def main():
                 print(f"[WARN] Babaa post generation skipped due to daily limit or failure.")
                 continue
 
-            reply_text = result["text"]
+            # @アカウント名を含めてリプライ先に通知が届くようにする
+            reply_text = f"@{account} {result['text']}"
             print(f"[POST] @{account} → {reply_text}")
 
             try:
                 client.create_tweet(
                     text=reply_text,
-                    reply={"in_reply_to_tweet_id": tweet.id}
+                    in_reply_to_tweet_id=tweet.id  # 正しいパラメータに修正
                 )
                 count += 1
             except Exception as e:
