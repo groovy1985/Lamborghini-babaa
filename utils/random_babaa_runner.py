@@ -4,8 +4,8 @@ import os
 # repoルートをimportパスに追加
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import random
 import tweepy
+import random
 import re
 from post_generator import generate_babaa_post
 
@@ -43,12 +43,17 @@ def main():
         random.shuffle(tweets)  # 各回ランダム化
 
         for tweet in tweets:
-            if count >= 2:
+            if count >= 1:  # 各アカウントで1件だけ投稿
                 break
             if is_earthquake_related(tweet.text):
                 continue
 
-            reply_text = generate_babaa_post(tweet.text)
+            result = generate_babaa_post()
+            if result is None:
+                print(f"[WARN] Babaa post generation skipped due to daily limit or failure.")
+                continue
+
+            reply_text = result["text"]
             print(f"[POST] @{account} → {reply_text}")
 
             try:
@@ -61,9 +66,5 @@ def main():
                 print(f"[ERROR] Failed to post reply: {e}")
 
 if __name__ == "__main__":
-    if random.random() < 0.4:
-        print("[INFO] Selected: executing babaa reply bomb.")
-        main()
-    else:
-        print("[INFO] Skipped: not executing this time.")
-        sys.exit(0)
+    print("[INFO] Executing babaa reply bomb (no randomness).")
+    main()
