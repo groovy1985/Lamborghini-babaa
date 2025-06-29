@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import tweepy
 import random
 import re
-from post_generator import generate_babaa_post
+from reply_generator import generate_babaa_reply  # ← post_generatorではなくreply_generatorを使う
 
 TARGET_ACCOUNTS = [
     "YahooNewsTopics",
@@ -47,24 +47,23 @@ def main():
             if is_earthquake_related(tweet.text):
                 continue
 
-            result = generate_babaa_post()
+            result = generate_babaa_reply(tweet.text)  # ←元ツイート本文を渡す
             if result is None:
                 print(f"[WARN] Babaa post generation skipped due to daily limit or failure.")
                 continue
 
-            # @アカウント名を含めてリプライ先に通知が届くようにする
             reply_text = f"@{account} {result['text']}"
             print(f"[POST] @{account} → {reply_text}")
 
             try:
                 client.create_tweet(
                     text=reply_text,
-                    in_reply_to_tweet_id=tweet.id  # 正しいパラメータに修正
+                    in_reply_to_tweet_id=tweet.id  # 正しいリプライパラメータ
                 )
                 count += 1
             except Exception as e:
                 print(f"[ERROR] Failed to post reply: {e}")
 
 if __name__ == "__main__":
-    print("[INFO] Executing babaa reply bomb (no randomness).")
+    print("[INFO] Executing babaa reply bomb (context-aware).")
     main()
