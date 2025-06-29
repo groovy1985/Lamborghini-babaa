@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import tweepy
 import random
 import re
-from reply_generator import generate_babaa_reply  # ← post_generatorではなくreply_generatorを使う
+from reply_generator import generate_babaa_reply
 
 TARGET_ACCOUNTS = [
     "YahooNewsTopics",
@@ -31,39 +31,43 @@ def main():
     )
 
     for account in TARGET_ACCOUNTS:
-        user = client.get_user(username=account).data
-        tweets = client.get_users_tweets(
-            user.id,
-            max_results=5,
-            tweet_fields=["created_at"]
-        ).data or []
+        try:
+            user = client.get_user(username=account).data
+            tweets = client.get_users_tweets(
+                user.id,
+                max_results=5,  # APIの仕様上5以上必須
+                tweet_fields=["created_at"]
+            ).data or []
 
-        count = 0
-        random.shuffle(tweets)  # 各回ランダム化
+            # 取得後は先頭1件のみ処理してAPI負荷を最小化
+            tweets = tweets[:1]
 
-        for tweet in tweets:
-            if count >= 1:  # 各アカウントで1件だけ投稿
-                break
-            if is_earthquake_related(tweet.text):
-                continue
+            for tweet in tweets:
+                if is_earthquake_related(tweet.text):
+                    continue
 
-            result = generate_babaa_reply(tweet.text)  # ←元ツイート本文を渡す
-            if result is None:
-                print(f"[WARN] Babaa post generation skipped due to daily limit or failure.")
-                continue
+                result = generate_babaa_reply(tweet.text)
+                if result is None:
+                    print(f"[WARN] Babaa post generation skipped due to daily limit or failure.")
+                    continue
 
-            reply_text = f"@{account} {result['text']}"
-            print(f"[POST] @{account} → {reply_text}")
+                reply_text = f"@{account} {result['text']}"
+                print(f"[POST] @{account} → {reply_text}")
 
-            try:
-                client.create_tweet(
-                    text=reply_text,
-                    in_reply_to_tweet_id=tweet.id  # 正しいリプライパラメータ
-                )
-                count += 1
-            except Exception as e:
-                print(f"[ERROR] Failed to post reply: {e}")
+                try:
+                    client.create_tweet(
+                        text=reply_text,
+                        in_reply_to_tweet_id=tweet.id
+                    )
+                except Exception as e:
+                    print(f"[ERROR] Failed to post reply: {e}")
+
+        except tweepy.errors.TooManyRequests as e:
+            print("[ERROR] API rate limit reached, skipping remaining accounts for today.")
+            break
+        except Exception as e:
+            print(f"[ERROR] Unexpected error: {e}")
 
 if __name__ == "__main__":
-    print("[INFO] Executing babaa reply bomb (context-aware).")
+    print("[INFO] Executing babaa reply bomb (context-aware, minimized API calls).")
     main()
