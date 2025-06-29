@@ -11,7 +11,6 @@ from post_generator import generate_babaa_post
 
 TARGET_ACCOUNTS = [
     "YahooNewsTopics",
-    "YahooTopicsEdit",
     "nhk_news"
 ]
 
