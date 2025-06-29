@@ -2,7 +2,8 @@ name: Random Babaa Reply Bomb
 
 on:
   schedule:
-    - cron: '0 23-14 * * *'  # JST 8:00〜23:00に1時間ごと
+    - cron: '0 23 * * *'     # JST08:00
+    - cron: '0 0-14 * * *'   # JST09:00-23:00
   workflow_dispatch:
 
 jobs:
