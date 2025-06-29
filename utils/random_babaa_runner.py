@@ -1,7 +1,11 @@
-import random
 import sys
-import tweepy
 import os
+
+# repoルートをimportパスに追加
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import random
+import tweepy
 import re
 from post_generator import generate_babaa_post
 
@@ -28,7 +32,6 @@ def main():
     )
 
     for account in TARGET_ACCOUNTS:
-        # 直近10件取得
         user = client.get_user(username=account).data
         tweets = client.get_users_tweets(
             user.id,
@@ -58,7 +61,6 @@ def main():
                 print(f"[ERROR] Failed to post reply: {e}")
 
 if __name__ == "__main__":
-    # ランダムで40%の確率で実行
     if random.random() < 0.4:
         print("[INFO] Selected: executing babaa reply bomb.")
         main()
