@@ -54,20 +54,21 @@ Inside you, four minds quietly swirl:
 - Fyodor Dostoevsky: heavy, ethical, reflective
 - “Ore”: a silent observer who says little, but distorts much
 
-Please generate a 3-line casual conversation between you and two other elderly women.
-You're chatting by the roadside. It should feel like soft gossip mixed with strange thoughts.
+Please randomly choose one of the following and generate accordingly:
+- A 3-line casual conversation between you and two other elderly women.
+- A single-paragraph monologue in first-person (no line breaks), between 50-140 characters.
 
 [Instructions]
-- You must include the word "{keyword}" in one of the lines. No exceptions.
-- Output must be exactly 3 lines.
-- Each line should be in quotation marks, like spoken language. E.g. "The cat didn’t say a word, but I answered anyway."
-- Keep topics mundane, but let each line carry a faint twist—philosophical, surreal, or emotionally ambiguous.
-- Use gentle, grandmotherly, conversational English—not formal, not poetic prose.
+- For either conversation or monologue, you must include the word "{keyword}" somewhere. No exceptions.
+- For conversation: each line should be in quotation marks like spoken language, e.g. "The cat didn’t say a word, but I answered anyway."
+- For monologue: do not use quotation marks, just output the text.
+- Topics must stay mundane but filled with life’s defeat, quiet despair, or resignation—reflecting daily struggles like bills, health issues, lost relationships, or small failures.
+- Keep the language gentle, grandmotherly, conversational English—not formal or poetic prose.
 - Avoid nonsense, complex words, or modern slang.
-- Grammar must be correct. No sentence fragments or hallucinated words.
-- Total output should stay under 280 characters.
+- Grammar must be correct, no sentence fragments or hallucinated words.
+- The total output (excluding spaces) must be between 50-140 characters.
 
-Return only the 3 quoted lines, no extra explanation.
+Return only the generated text, no extra explanation.
 """.strip()
 
             response = client.chat.completions.create(
@@ -80,21 +81,17 @@ Return only the 3 quoted lines, no extra explanation.
             print(f"[EN] {english_text}")
 
             translate_prompt = f"""
-以下の3行の英語の発言を、日本語の自然な高齢女性の会話文に翻訳してください。
+以下の文章を、日本語の自然な高齢女性の言葉に翻訳してください。内容は会話または独白です。
 
 （ルール）
-- 口調は70代の日本人女性らしく、やさしく、すこしとぼけた口調にしてください（例：「〜のよ」「〜かしらね」「〜だったね」など）
-- 文法は必ず成立させ、破綻構文や意味不明な語彙は禁止します
-- 意味がわかりすぎる必要はありませんが、会話として自然に聞こえること
-- 各行は必ず日本語の鉤括弧「」で囲んでください
-- 抽象語・哲学語はそのまま翻訳せず、生活感や感覚に置き換えてください
-- 呼吸と語りの感じが“ババァ”であることを最優先にしてください
-- 必ずどこかの1行にこの言葉を含めてください：「{keyword}」
-
-【出力例】
-「雨粒って、誰かが落としてるんじゃないかしら」
-「うちのネコ、昨日の風に返事してたのよ」
-「それが夢だったなら、それでもよかったのよ」
+- 会話か独白をそのまま再現してください。独白の場合は1段落で鉤括弧「」は不要です。会話の場合は各行を必ず鉤括弧「」で囲んでください。
+- 出力文字数は必ず50文字以上140文字以内に収めてください（空白は含まず）。
+- 口調は70代の日本人女性らしく、やさしく、少しとぼけた感じを優先してください（例：「〜のよ」「〜かしらね」「〜だったね」など）。
+- 文法は必ず成立させ、破綻構文や意味不明な単語は禁止します。
+- 意味が完全にわかる必要はありませんが、自然な会話や独白として成立していること。
+- 抽象的・哲学的な言葉は生活感や感覚に置き換えてください。
+- 呼吸と語りの感じが「ババァ」であることを最優先にしてください。
+- 必ずどこかにこの言葉を含めてください：「{keyword}」
 
 翻訳対象:
 {english_text}
@@ -114,11 +111,11 @@ Return only the 3 quoted lines, no extra explanation.
             is_dialogue = bool(dialogue_lines)
 
             if is_dialogue:
-                if 1 <= len(dialogue_lines) <= 4 and text_len <= 145:
+                if 1 <= len(dialogue_lines) <= 4 and 50 <= text_len <= 140:
                     increment_daily_count()
                     return {"text": "\n".join(dialogue_lines), "timestamp": datetime.now().isoformat()}
             else:
-                if 1 <= text_len <= 145:
+                if 50 <= text_len <= 140:
                     increment_daily_count()
                     return {"text": japanese_text, "timestamp": datetime.now().isoformat()}
 
