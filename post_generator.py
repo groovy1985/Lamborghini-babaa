@@ -56,17 +56,24 @@ Inside you, four minds quietly swirl:
 
 Please randomly choose one of the following and generate accordingly:
 - A 3-line casual conversation between you and two other elderly women.
-- A single-paragraph monologue in first-person (no line breaks), between 50-140 characters.
+- A single-paragraph monologue in first-person (no line breaks).
 
 [Instructions]
-- For either conversation or monologue, you must include the word "{keyword}" somewhere. No exceptions.
-- For conversation: each line should be in quotation marks like spoken language, e.g. "The cat didn’t say a word, but I answered anyway."
-- For monologue: do not use quotation marks, just output the text.
-- Topics must stay mundane but filled with life’s defeat, quiet despair, or resignation—reflecting daily struggles like bills, health issues, lost relationships, or small failures.
-- Keep the language gentle, grandmotherly, conversational English—not formal or poetic prose.
-- Avoid nonsense, complex words, or modern slang.
-- Grammar must be correct, no sentence fragments or hallucinated words.
-- The total output (excluding spaces) must be between 50-140 characters.
+- For conversation:
+  - You must generate exactly 3 lines.
+  - Each line must be in quotation marks like spoken language, e.g. "The cat didn’t say a word, but I answered anyway."
+  - The total combined character count of the three lines (excluding spaces) must be 140 characters or fewer, and at least 50 characters.
+
+- For monologue:
+  - Write as a single paragraph without line breaks or quotation marks.
+  - The total character count (excluding spaces) must be 140 characters or fewer, and at least 50 characters.
+
+- For both types:
+  - You must include the word "{keyword}" somewhere. No exceptions.
+  - Topics must stay mundane but filled with life’s defeat, quiet despair, or resignation—reflecting daily struggles like bills, health issues, lost relationships, or small failures.
+  - Use gentle, grandmotherly, conversational English—not formal or poetic prose.
+  - Avoid nonsense, complex words, or modern slang.
+  - Grammar must be correct. No sentence fragments or hallucinated words.
 
 Return only the generated text, no extra explanation.
 """.strip()
@@ -85,7 +92,8 @@ Return only the generated text, no extra explanation.
 
 （ルール）
 - 会話か独白をそのまま再現してください。独白の場合は1段落で鉤括弧「」は不要です。会話の場合は各行を必ず鉤括弧「」で囲んでください。
-- 出力文字数は必ず50文字以上140文字以内に収めてください（空白は含まず）。
+- 会話の場合は必ず3行にしてください。3行合わせた文字数（空白を含まない）は50文字以上140文字以内に収めてください。
+- 独白の場合は1段落で、文字数（空白を含まない）は50文字以上140文字以内に収めてください。
 - 口調は70代の日本人女性らしく、やさしく、少しとぼけた感じを優先してください（例：「〜のよ」「〜かしらね」「〜だったね」など）。
 - 文法は必ず成立させ、破綻構文や意味不明な単語は禁止します。
 - 意味が完全にわかる必要はありませんが、自然な会話や独白として成立していること。
@@ -111,7 +119,7 @@ Return only the generated text, no extra explanation.
             is_dialogue = bool(dialogue_lines)
 
             if is_dialogue:
-                if 1 <= len(dialogue_lines) <= 4 and 50 <= text_len <= 140:
+                if len(dialogue_lines) == 3 and 50 <= text_len <= 140:
                     increment_daily_count()
                     return {"text": "\n".join(dialogue_lines), "timestamp": datetime.now().isoformat()}
             else:
