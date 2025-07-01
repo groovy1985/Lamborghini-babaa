@@ -43,6 +43,7 @@ The word is: "{raw_keyword}"
 Imagine a 70-year-old Japanese woman who misunderstands or misremembers this word,
 turning it into something slightly wrong, old-fashioned, or delusional.
 Generate one short rephrased version of the word, in Japanese, that feels like her confused way of saying it.
+Do not use made-up or non-existent words. Use only real words or combinations of existing Japanese words.
 Do not add explanations, just return the transformed word.
 """.strip()
 
@@ -98,7 +99,7 @@ Please randomly choose one of the following and generate accordingly:
     - Ore: heavy pauses, silence, or abrupt dead-ends in the conversation or thought.
   - Topics must stay mundane but filled with life’s defeat, quiet despair, or resignation—reflecting daily struggles like bills, health issues, lost relationships, or small failures.
   - Use gentle, grandmotherly, conversational English—not formal or poetic prose.
-  - Avoid nonsense, complex words, or modern slang.
+  - Avoid nonsense, complex words, modern slang, or invented words that do not exist in Japanese or English.
   - Grammar must be correct. No sentence fragments or hallucinated words.
 
 Return only the generated text, no extra explanation.
@@ -122,7 +123,7 @@ Return only the generated text, no extra explanation.
 - 独白の場合は1段落で、文字数（空白を含まない）は50文字以上140文字以内に収めてください。
 - ドスト的な矛盾した倫理観や救済拒否、ディラン的な音や比喩のズレ、談志的なブラックユーモアや逆説、俺的な沈黙感をどこかに含めてください。
 - 口調は70代の日本人女性らしく、やさしく、少しとぼけた感じを優先してください（例：「〜のよ」「〜かしらね」「〜だったね」など）。
-- ババァらしいとぼけた感じは出してくださいが、文法は必ず正しく、主語・述語が自然につながるようにしてください。破綻構文や意味不明な単語は禁止します。
+- ババァらしいとぼけた感じは出してくださいが、文法は必ず正しく、主語・述語が自然につながるようにしてください。破綻構文や意味不明な単語、存在しない造語は禁止します。既存の日本語の単語のみを使用してください。
 - 意味が完全にわかる必要はありませんが、自然な会話や独白として成立していること。
 - 抽象的・哲学的な言葉は生活感や感覚に置き換えてください。
 - 呼吸と語りの感じが「ババァ」であることを最優先にしてください。
