@@ -36,33 +36,32 @@ def increment_daily_count():
     with open(DAILY_LIMIT_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=True, indent=2)
 
-def generate_transformed_keyword(raw_keyword: str) -> str:
+def generate_abstracted_keyword(raw_keyword: str) -> str:
     prompt = f"""
 The word is: "{raw_keyword}"
 
-Imagine a 70-year-old Japanese woman who misunderstands or misremembers this word,
-turning it into something slightly wrong, old-fashioned, or delusional.
-Generate one short rephrased version of the word, in Japanese, that feels like her confused way of saying it.
-Do not use made-up or non-existent words. Use only real words or combinations of existing Japanese words.
-Do not add explanations, just return the transformed word.
+Imagine a 70-year-old Japanese woman reflecting on this word. Generate one short abstract expression in Japanese
+that captures the feeling or image behind the word. Do not use made-up or non-existent words. Use only existing Japanese words.
+The phrase should feel like something she would mutter while thinking about the concept behind the word.
+Return only the abstracted phrase, no explanations.
 """.strip()
 
     response = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
-        temperature=1.1,
+        temperature=1.0,
         timeout=5,
     )
-    transformed = response.choices[0].message.content.strip()
-    print(f"[KEYWORD] {raw_keyword} → {transformed}")
-    return transformed
+    abstracted = response.choices[0].message.content.strip()
+    print(f"[KEYWORD] {raw_keyword} → {abstracted}")
+    return abstracted
 
 def generate_babaa_post():
     if not check_daily_limit():
         return None
 
     raw_keyword = get_top_trend_word()[:10]
-    keyword = generate_transformed_keyword(raw_keyword)
+    keyword = generate_abstracted_keyword(raw_keyword)
     max_attempts = 12
 
     for _ in range(max_attempts):
