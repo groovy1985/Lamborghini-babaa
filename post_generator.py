@@ -36,11 +36,32 @@ def increment_daily_count():
     with open(DAILY_LIMIT_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=True, indent=2)
 
+def generate_transformed_keyword(raw_keyword: str) -> str:
+    prompt = f"""
+The word is: "{raw_keyword}"
+
+Imagine a 70-year-old Japanese woman who misunderstands or misremembers this word,
+turning it into something slightly wrong, old-fashioned, or delusional.
+Generate one short rephrased version of the word, in Japanese, that feels like her confused way of saying it.
+Do not add explanations, just return the transformed word.
+""".strip()
+
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=1.1,
+        timeout=5,
+    )
+    transformed = response.choices[0].message.content.strip()
+    print(f"[KEYWORD] {raw_keyword} → {transformed}")
+    return transformed
+
 def generate_babaa_post():
     if not check_daily_limit():
         return None
 
-    keyword = get_top_trend_word()[:10]
+    raw_keyword = get_top_trend_word()[:10]
+    keyword = generate_transformed_keyword(raw_keyword)
     max_attempts = 12
 
     for _ in range(max_attempts):
@@ -70,6 +91,11 @@ Please randomly choose one of the following and generate accordingly:
 
 - For both types:
   - You must include the word "{keyword}" somewhere. No exceptions.
+  - Blend these four minds into the text:
+    - Dostoevsky: ethical contradictions, despair about salvation, reflections on guilt.
+    - Dylan: musical phrasing, surreal or shattered metaphors, shifting perspectives mid-thought.
+    - Danshi: dark humor, playful reversals, cynical remarks about daily life.
+    - Ore: heavy pauses, silence, or abrupt dead-ends in the conversation or thought.
   - Topics must stay mundane but filled with life’s defeat, quiet despair, or resignation—reflecting daily struggles like bills, health issues, lost relationships, or small failures.
   - Use gentle, grandmotherly, conversational English—not formal or poetic prose.
   - Avoid nonsense, complex words, or modern slang.
@@ -94,6 +120,7 @@ Return only the generated text, no extra explanation.
 - 会話か独白をそのまま再現してください。独白の場合は1段落で鉤括弧「」は不要です。会話の場合は各行を必ず鉤括弧「」で囲んでください。
 - 会話の場合は必ず3行にしてください。3行合わせた文字数（空白を含まない）は50文字以上140文字以内に収めてください。
 - 独白の場合は1段落で、文字数（空白を含まない）は50文字以上140文字以内に収めてください。
+- ドスト的な矛盾した倫理観や救済拒否、ディラン的な音や比喩のズレ、談志的なブラックユーモアや逆説、俺的な沈黙感をどこかに含めてください。
 - 口調は70代の日本人女性らしく、やさしく、少しとぼけた感じを優先してください（例：「〜のよ」「〜かしらね」「〜だったね」など）。
 - 文法は必ず成立させ、破綻構文や意味不明な単語は禁止します。
 - 意味が完全にわかる必要はありませんが、自然な会話や独白として成立していること。
