@@ -36,7 +36,6 @@ def increment_daily_count():
         json.dump(data, f, ensure_ascii=True, indent=2)
 
 def extract_keyword_from_text(text):
-    # 2文字以上の漢字 or カタカナ単語を優先的に抽出
     keywords = re.findall(r'[一-龯]{2,}|[ァ-ヶー]{2,}', text)
     if keywords:
         print(f"[INFO] 抽出キーワード: {keywords[0]}")
@@ -90,6 +89,7 @@ Return only the 3 lines, no extra explanation.
 - 個人名・固有名詞は禁止。
 - ババァらしいとぼけた口調にしつつ文法は正しく。
 - 各行は成立しているようで微妙にかみ合わないズレを含めてください。
+- 同じ語尾（〜のよ、〜だわ、〜ねなど）を複数行で繰り返さないでください。3行とも異なる語尾にしてください。
 - 哲学的表現は生活感に置き換え、自然な会話にしてください。
 - 必ず1行に「{keyword}」を含めてください。
 
