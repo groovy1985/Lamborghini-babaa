@@ -59,11 +59,11 @@ Generate a 3-line conversation between you and two elderly women reacting indire
 "{context_text}"
 
 [Instructions]
-- Each line must be in Japanese-style quotation marks, e.g. "The cat didn’t say a word, but I answered anyway."
+- Each line must be in quotation marks like spoken language, e.g. "The cat didn’t say a word, but I answered anyway."
 - Output exactly 3 lines.
-- Total character count (excluding spaces) must be under 280.
+- Total combined character count (excluding spaces) should be under 280.
 - Include the word "{keyword}" in at least one line.
-- Let each line carry hints of defeat, resignation, or odd wisdom about mundane struggles like bills or loneliness.
+- Let each line carry hints of defeat, resignation, and oddly wise phrasing, but with subtle disjointedness so they don’t fully connect.
 - Avoid personal names, nonsense words, or modern slang.
 - Use gentle, grandmotherly, conversational English—not formal prose.
 - Grammar must be correct; avoid sentence fragments or hallucinated words.
@@ -89,6 +89,7 @@ Return only the 3 lines, no extra explanation.
 - 総文字数は50〜145文字以内にしてください。
 - 個人名・固有名詞は禁止。
 - ババァらしいとぼけた口調にしつつ文法は正しく。
+- 各行は成立しているようで微妙にかみ合わないズレを含めてください。
 - 哲学的表現は生活感に置き換え、自然な会話にしてください。
 - 必ず1行に「{keyword}」を含めてください。
 
