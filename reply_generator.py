@@ -41,7 +41,7 @@ def extract_keyword_from_text(text):
     if keywords:
         print(f"[INFO] 抽出キーワード: {keywords[0]}")
         return keywords[0]
-    return "思い出"  # fallbackワード
+    return "思い出"  # fallback
 
 def generate_babaa_reply(context_text):
     if not check_daily_limit():
@@ -53,30 +53,22 @@ def generate_babaa_reply(context_text):
     for _ in range(max_attempts):
         try:
             en_prompt = f"""
-You are a 70-year-old Japanese woman who lives in a small town.
+You are a 70-year-old Japanese woman living in a small town.
 
-Inside you, four minds quietly swirl:
-- Bob Dylan: poetic and melancholic
-- Tatekawa Danshi: cynical, disruptive, loves to derail meaning
-- Fyodor Dostoevsky: heavy, ethical, reflective
-- “Ore”: a silent observer who says little, but distorts much
-
-Here is the tweet you want to reply to:
+Generate a 3-line conversation between you and two elderly women reacting indirectly to this tweet:
 "{context_text}"
 
-Please generate a 3-line casual conversation between you and two other elderly women that indirectly or subtly connects to the topic above.
-
 [Instructions]
-- You must include the word "{keyword}" in one of the lines. No exceptions.
-- Output must be exactly 3 lines.
-- Each line should be in quotation marks, like spoken language. E.g. "The cat didn’t say a word, but I answered anyway."
-- Keep topics mundane, but let each line carry a faint twist—philosophical, surreal, or emotionally ambiguous.
-- Use gentle, grandmotherly, conversational English—not formal, not poetic prose.
-- Avoid nonsense, complex words, or modern slang.
-- Grammar must be correct. No sentence fragments or hallucinated words.
-- Total output should stay under 280 characters.
+- Each line must be in Japanese-style quotation marks, e.g. "The cat didn’t say a word, but I answered anyway."
+- Output exactly 3 lines.
+- Total character count (excluding spaces) must be under 280.
+- Include the word "{keyword}" in at least one line.
+- Let each line carry hints of defeat, resignation, or odd wisdom about mundane struggles like bills or loneliness.
+- Avoid personal names, nonsense words, or modern slang.
+- Use gentle, grandmotherly, conversational English—not formal prose.
+- Grammar must be correct; avoid sentence fragments or hallucinated words.
 
-Return only the 3 quoted lines, no extra explanation.
+Return only the 3 lines, no extra explanation.
 """.strip()
 
             response = client.chat.completions.create(
@@ -89,21 +81,16 @@ Return only the 3 quoted lines, no extra explanation.
             print(f"[EN] {english_text}")
 
             translate_prompt = f"""
-以下の3行の英語の発言を、日本語の自然な高齢女性の会話文に翻訳してください。
+次の英語の3行会話を日本語の自然な高齢女性の会話に翻訳してください。
 
-（ルール）
-- 口調は70代の日本人女性らしく、やさしく、すこしとぼけた口調にしてください（例：「〜のよ」「〜かしらね」「〜だったね」など）
-- 文法は必ず成立させ、破綻構文や意味不明な語彙は禁止します
-- 意味がわかりすぎる必要はありませんが、会話として自然に聞こえること
-- 各行は必ず日本語の鎩括括「」で囲んでください
-- 抽象語・哲学語はそのまま翻訳せず、生活感や感覚に置き換えてください
-- 形式ではなく、呼吸と語りの感じが“ババァ”であることを最優先にしてください
-- 必ずどこかの1行にこの言葉を含めてください：「{keyword}」
-
-【出力例】
-「雨粒って、誰かが落としてるんじゃないかしら」
-「うちのネコ、昨日の風に返事してたのよ」
-「それが夢だったなら、それでもよかったのよ」
+[ルール]
+- 各行は「」で囲んでください。
+- 出力は必ず3行。
+- 総文字数は50〜145文字以内にしてください。
+- 個人名・固有名詞は禁止。
+- ババァらしいとぼけた口調にしつつ文法は正しく。
+- 哲学的表現は生活感に置き換え、自然な会話にしてください。
+- 必ず1行に「{keyword}」を含めてください。
 
 翻訳対象:
 {english_text}
@@ -120,18 +107,12 @@ Return only the 3 quoted lines, no extra explanation.
 
             dialogue_lines = re.findall(r'「.*?」', japanese_text, re.DOTALL)
             text_len = len(re.sub(r'\s', '', japanese_text))
-            is_dialogue = bool(dialogue_lines)
 
-            if is_dialogue:
-                if 1 <= len(dialogue_lines) <= 4 and text_len <= 145:
-                    increment_daily_count()
-                    return {"text": "\n".join(dialogue_lines), "timestamp": datetime.now().isoformat()}
-            else:
-                if 1 <= text_len <= 145:
-                    increment_daily_count()
-                    return {"text": japanese_text, "timestamp": datetime.now().isoformat()}
+            if len(dialogue_lines) == 3 and 50 <= text_len <= 145:
+                increment_daily_count()
+                return {"text": "\n".join(dialogue_lines), "timestamp": datetime.now().isoformat()}
 
-            print(f"[WARN] フォーマット不適合：dialogue={is_dialogue}, lines={len(dialogue_lines)}, text_len={text_len}")
+            print(f"[WARN] フォーマット不適合：lines={len(dialogue_lines)}, text_len={text_len}")
             time.sleep(1)
 
         except Exception as e:
