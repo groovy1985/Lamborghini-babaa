@@ -71,38 +71,28 @@ You are a 70-year-old Japanese woman who lives in a small town.
 
 Inside you, four minds quietly swirl:
 - Bob Dylan: poetic and melancholic
-- Tatekawa Danshi: cynical, disruptive, loves to derail meaning
+- Tatekawa Danshi: cynical, disruptive
 - Fyodor Dostoevsky: heavy, ethical, reflective
 - “Ore”: a silent observer who says little, but distorts much
 
-Randomly select one or two of these minds and weave their perspectives into your output:
-- Dostoevsky: ethical contradictions, despair about salvation, reflections on guilt.
-- Dylan: musical phrasing, surreal or shattered metaphors, shifting perspectives mid-thought.
-- Danshi: dark humor, playful reversals, cynical remarks about daily life.
-- Ore: heavy pauses, silence, or abrupt dead-ends in the conversation or thought.
-
-Then, randomly choose one of the following and generate accordingly:
-- A 3-line casual conversation between you and two other elderly women.
-- A single-paragraph monologue in first-person (no line breaks).
+Generate a 3-line casual conversation between you and two other elderly women.
 
 [Instructions]
-- For conversation:
-  - You must generate exactly 3 lines.
-  - Each line must be in quotation marks like spoken language, e.g. "The cat didn’t say a word, but I answered anyway."
-  - The total combined character count of the three lines (excluding spaces) must be 140 characters or fewer, and at least 50 characters.
+- Each line must be in Japanese-style quotation marks, e.g. 「～」.
+- You must generate exactly 3 lines.
+- The total combined character count of the three lines (excluding spaces) must be 140 characters or fewer, and at least 50 characters.
+- Include the word "{keyword}" somewhere, naturally if possible.
+- Blend 1-2 of these minds into the conversation:
+    - Dostoevsky: contradictions, despair, guilt.
+    - Dylan: musical phrasing, surreal shifts.
+    - Danshi: dark humor, playful cynicism.
+    - Ore: heavy silences, abrupt ends.
+- Topics must stay mundane but filled with quiet despair or resignation—reflecting daily struggles like bills, health issues, loneliness.
+- Use gentle, grandmotherly, conversational English—not formal or poetic prose.
+- Avoid nonsense, complex words, modern slang, or invented words.
+- Grammar must be correct. No sentence fragments or hallucinated words.
 
-- For monologue:
-  - Write as a single paragraph without line breaks or quotation marks.
-  - The total character count (excluding spaces) must be 140 characters or fewer, and at least 50 characters.
-
-- For both types:
-  - Try to include the word "{keyword}" naturally, but do not force it if it makes the text awkward or incoherent.
-  - Topics must stay mundane but filled with life’s defeat, quiet despair, or resignation—reflecting daily struggles like bills, health issues, lost relationships, or small failures.
-  - Use gentle, grandmotherly, conversational English—not formal or poetic prose.
-  - Avoid nonsense, complex words, modern slang, or invented words that do not exist in Japanese or English.
-  - Grammar must be correct. No sentence fragments or hallucinated words.
-
-Return only the generated text, no extra explanation.
+Return only the 3 lines, no extra explanation.
 """.strip()
 
             response = client.chat.completions.create(
@@ -115,16 +105,13 @@ Return only the generated text, no extra explanation.
             print(f"[EN] {english_text}")
 
             translate_prompt = f"""
-以下の文章を、日本語の自然な高齢女性の言葉に翻訳してください。内容は会話または独白です。
+以下の文章を、日本語の自然な高齢女性の3行会話に翻訳してください。
 
 （ルール）
-- 会話か独白をそのまま再現してください。独白の場合は1段落で鉤括弧「」は不要です。会話の場合は各行を必ず鉤括弧「」で囲んでください。
-- 会話の場合は必ず3行にしてください。3行合わせた文字数（空白を含まない）は50文字以上140文字以内に収めてください。
-- 独白の場合は1段落で、文字数（空白を含まない）は50文字以上140文字以内に収めてください。
-- 選ばれた人格の特徴（矛盾やズレ、皮肉、沈黙感など）をどこかに含めてください。ただし無理に詰め込みすぎず自然さを優先してください。
-- 口調は70代の日本人女性らしく、やさしく、少しとぼけた感じを優先してください（例：「〜のよ」「〜かしらね」「〜だったね」など）。
-- ババァらしいとぼけた感じは出してくださいが、文法は必ず正しく、主語・述語が自然につながるようにしてください。破綻構文や意味不明な単語、存在しない造語は禁止します。既存の日本語の単語のみを使用してください。
-- 意味が完全にわかる必要はありませんが、自然な会話や独白として成立していること。
+- 必ず3行にしてください。各行を日本語の鉤括弧「」で囲んでください。
+- 3行合わせた文字数（空白を含まない）は50文字以上140文字以内に収めてください。
+- ババァらしいとぼけた感じは出してくださいが、文法は必ず正しく、主語・述語が自然につながるようにしてください。破綻構文や意味不明な単語、存在しない造語は禁止します。既存の日本語単語のみを使用してください。
+- 意味が完全にわかる必要はありませんが、自然な会話として成立していること。
 - 抽象的・哲学的な言葉は生活感や感覚に置き換えてください。
 - 呼吸と語りの感じが「ババァ」であることを最優先にしてください。
 - 可能ならこの言葉を自然に含めてください：「{keyword}」
@@ -144,18 +131,12 @@ Return only the generated text, no extra explanation.
 
             dialogue_lines = re.findall(r'「.*?」', japanese_text, re.DOTALL)
             text_len = len(re.sub(r'\s', '', japanese_text))
-            is_dialogue = bool(dialogue_lines)
 
-            if is_dialogue:
-                if len(dialogue_lines) == 3 and 50 <= text_len <= 140:
-                    increment_daily_count()
-                    return {"text": "\n".join(dialogue_lines), "timestamp": datetime.now().isoformat()}
-            else:
-                if 50 <= text_len <= 140:
-                    increment_daily_count()
-                    return {"text": japanese_text, "timestamp": datetime.now().isoformat()}
+            if len(dialogue_lines) == 3 and 50 <= text_len <= 140:
+                increment_daily_count()
+                return {"text": "\n".join(dialogue_lines), "timestamp": datetime.now().isoformat()}
 
-            print(f"[WARN] フォーマット不適合：dialogue={is_dialogue}, lines={len(dialogue_lines)}, text_len={text_len}")
+            print(f"[WARN] フォーマット不適合：lines={len(dialogue_lines)}, text_len={text_len}")
             time.sleep(1)
 
         except Exception as e:
