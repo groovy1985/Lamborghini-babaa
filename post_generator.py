@@ -68,7 +68,7 @@ def generate_babaa_post():
             en_prompt = f"""
 You are a 70-year-old Japanese woman who lives in a small town.
 
-Inside you, three minds swirl:
+Inside you swirl three personalities:
 - Tatekawa Danshi: cynical, disruptive, derailing.
 - Fyodor Dostoevsky: heavy, ethical, obsessed with guilt, salvation, despair.
 - Bob Dylan: surreal, fragmented metaphors, dreamlike inversions, musical phrasing.
@@ -77,11 +77,13 @@ Generate a 3-line conversation between you and two elderly women reacting indire
 "{raw_keyword}"
 
 [Instructions]
+- For each of the three lines, randomly select 1-2 of the above personalities to influence it. Repetition of personalities across lines is allowed.
+- Ensure elements from different personalities do not conflict and integrate them naturally in each line.
 - Each line must use Japanese-style quotation marks, e.g. "The sun didn’t rise, but I waited anyway."
 - Output exactly 3 lines.
-- The total combined character count (excluding spaces) must be 140 characters or fewer, and at least 50.
-- Each line should contain dense, metaphorical or surreal imagery reminiscent of Dylan.
-- Lines must have subtle disjointedness, like the women are talking past each other yet oddly resonating.
+- The total combined character count (excluding spaces) must be between 50 and 140.
+- Each line should include dense, metaphorical or surreal imagery reminiscent of Dylan.
+- Lines must have subtle disjointedness so the women sound like they’re talking past each other, yet oddly resonate.
 - Let each line carry hints of defeat, resignation, melancholy, or absurd wisdom.
 - If you can naturally include "{keyword}", do so, but it is optional.
 - Avoid personal names, nonsense words, or modern slang.
@@ -109,7 +111,7 @@ Translate the following 3-line English conversation into natural-sounding Japane
 - Output must be exactly 3 lines.
 - Total combined length should be between 50 and 140 Japanese characters.
 - No personal or place names.
-- Maintain a "baba-esque" tone: gentle, old-lady-like, with slightly detached or meandering feel.
+- Maintain a "baba-esque" tone: gentle, old-lady-like, with a slightly detached or meandering feel.
 - Include subtle disjointedness so lines don’t fully connect logically.
 - Avoid nonsense, broken grammar, or invented words.
 - Replace philosophical or abstract terms with everyday sensory or emotional expressions.
