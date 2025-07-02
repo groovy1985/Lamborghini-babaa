@@ -78,16 +78,20 @@ Inside you, four minds quietly swirl:
 Generate a 3-line casual conversation between you and two other elderly women.
 
 [Instructions]
+- Do not use personal names (e.g., "Yuko", "Satoshi"). Avoid any specific or proper names.
 - Each line must be in Japanese-style quotation marks, e.g. 「～」.
-- You must generate exactly 3 lines.
+- Generate exactly 3 lines.
 - The total combined character count of the three lines (excluding spaces) must be 140 characters or fewer, and at least 50 characters.
 - Include the word "{keyword}" somewhere, naturally if possible.
-- Blend 1-2 of these minds into the conversation:
-    - Dostoevsky: contradictions, despair, guilt.
-    - Dylan: musical phrasing, surreal shifts.
-    - Danshi: dark humor, playful cynicism.
-    - Ore: heavy silences, abrupt ends.
-- Topics must stay mundane but filled with quiet despair or resignation—reflecting daily struggles like bills, health issues, loneliness.
+- Infuse the conversation with:
+    - Defeat or resignation about everyday life (bills, loneliness, health worries).
+    - A hint of oddly wise or memorable phrasing, like it could be mistaken for a proverb.
+    - Blend 1-2 of these minds:
+        - Dostoevsky: contradictions, despair, guilt.
+        - Dylan: musical phrasing, surreal shifts.
+        - Danshi: dark humor, playful cynicism.
+        - Ore: heavy silences, abrupt ends.
+- Keep topics mundane but tinged with quiet despair.
 - Use gentle, grandmotherly, conversational English—not formal or poetic prose.
 - Avoid nonsense, complex words, modern slang, or invented words.
 - Grammar must be correct. No sentence fragments or hallucinated words.
@@ -110,9 +114,11 @@ Return only the 3 lines, no extra explanation.
 （ルール）
 - 必ず3行にしてください。各行を日本語の鉤括弧「」で囲んでください。
 - 3行合わせた文字数（空白を含まない）は50文字以上140文字以内に収めてください。
-- ババァらしいとぼけた感じは出してくださいが、文法は必ず正しく、主語・述語が自然につながるようにしてください。破綻構文や意味不明な単語、存在しない造語は禁止します。既存の日本語単語のみを使用してください。
+- 個人名や特定の固有名詞は禁止してください。
+- ババァらしいとぼけた感じを出しつつも、文法は正しく、主語・述語が自然につながるようにしてください。
 - 意味が完全にわかる必要はありませんが、自然な会話として成立していること。
 - 抽象的・哲学的な言葉は生活感や感覚に置き換えてください。
+- 生活への敗北感、諦め、そして妙に名言めいた響きを必ず含めてください。
 - 呼吸と語りの感じが「ババァ」であることを最優先にしてください。
 - 可能ならこの言葉を自然に含めてください：「{keyword}」
 
