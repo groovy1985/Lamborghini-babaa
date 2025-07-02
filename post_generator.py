@@ -95,4 +95,44 @@ Return only the 3 lines, no extra explanation.
             print(f"[EN] {english_text}")
 
             translate_prompt = f"""
-Translate the following 3-line English conversation into natural-sounding Japanese lines as if spoken by elderly Japanese wome
+Translate the following 3-line English conversation into natural-sounding Japanese lines as if spoken by elderly Japanese women.
+
+[Rules]
+- Each line must be wrapped in Japanese 「」 quotation marks.
+- Output must be exactly 3 lines.
+- Total combined length should be between 50 and 140 Japanese characters.
+- No personal or place names.
+- Keep a "baba-esque" feeling: gentle, old-lady-like, with a slightly detached or meandering tone.
+- Avoid nonsensical, broken grammar, or invented words.
+- Replace philosophical terms with everyday sensory or emotional expressions.
+- At least one line must include the word: 「{keyword}」
+
+Text to translate:
+{english_text}
+""".strip()
+
+            translation = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": translate_prompt}],
+                temperature=1.0,
+                timeout=15,
+            )
+            japanese_text = translation.choices[0].message.content.strip()
+            print(f"[JP] {japanese_text}")
+
+            dialogue_lines = re.findall(r'「.*?」', japanese_text, re.DOTALL)
+            text_len = len(re.sub(r'\s', '', japanese_text))
+
+            if len(dialogue_lines) == 3 and 50 <= text_len <= 140:
+                increment_daily_count()
+                return {"text": "\n".join(dialogue_lines), "timestamp": datetime.now().isoformat()}
+
+            print(f"[WARN] Format mismatch: lines={len(dialogue_lines)}, text_len={text_len}")
+            time.sleep(1)
+
+        except Exception as e:
+            print(f"[ERROR] API error: {e}")
+            time.sleep(2)
+
+    print("[FAILED] All attempts failed: skipping post")
+    return None
