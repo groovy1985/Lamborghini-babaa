@@ -62,6 +62,8 @@ Generate a 3-line conversation between you and two elderly women reacting indire
 - Output exactly 3 lines.
 - Total combined character count (excluding spaces) should be under 280.
 - Include the word "{keyword}" in at least one line.
+- Each line must contain a Dylan-like random metaphor or surreal image, something unexpected or disconnected from reality.
+- Each line should feel like it almost makes sense but carries a subtle dissonance or ambiguity, as if meaning slips away on closer look.
 - Let each line carry hints of defeat, resignation, and oddly wise phrasing, but with subtle disjointedness so they don’t fully connect.
 - Avoid personal names, nonsense words, or modern slang.
 - Use gentle, grandmotherly, conversational English—not formal prose.
@@ -84,12 +86,14 @@ Return only the 3 lines, no extra explanation.
 
 [ルール]
 - 各行は「」で囲んでください。
+- 各行内で引用や印象的な単語は『』を使って強調してください。
 - 出力は必ず3行。
 - 総文字数は50〜145文字以内にしてください。
 - 個人名・固有名詞は禁止。
 - ババァらしいとぼけた口調にしつつ文法は正しく。
 - 各行は成立しているようで微妙にかみ合わないズレを含めてください。
 - 同じ語尾（〜のよ、〜だわ、〜ねなど）を複数行で繰り返さないでください。3行とも異なる語尾にしてください。
+- 各行には必ず現実離れした唐突なメタファーやイメージ（Dylan的ズラし）を含め、意味がかみ合いそうでかみ合わないようにしてください。
 - 哲学的表現は生活感に置き換え、自然な会話にしてください。
 - 必ず1行に「{keyword}」を含めてください。
 
