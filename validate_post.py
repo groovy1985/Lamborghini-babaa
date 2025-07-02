@@ -2,7 +2,7 @@ import re
 
 def is_valid_post(text: str) -> bool:
     """
-    validate_post.py｜構文国家：KZHX-L4.2 準拠検証器（ver.1.2）
+    validate_post.py｜構文国家：KZHX-L4.2 準拠検証器（ver.1.2整理版）
     - GPT語尾破綻・構文崩壊・意味逸脱の中間ゾーンを精密に選別
     - 会話（3行・鉤括弧あり）または独白（1段落・鉤括弧なし）を許容
     """
@@ -15,14 +15,18 @@ def is_valid_post(text: str) -> bool:
 
     if len(lines) == 3:
         # 会話パターン：全行が鉤括弧で囲まれていること
-        if not all(line.startswith("「") and line.endswith("」") for line in lines):
+        if not all(
+            line.startswith("「") and line.endswith("」") and line.count("「") == 1 and line.count("」") == 1
+            for line in lines
+        ):
             return False
-        # 会話では応答擬態を含むかをチェック
+
+        # 会話：応答擬態を含むかチェック
         reply_hints = [
             "それで", "やっぱり", "うちも", "たしかに", "でも",
             "じゃあ", "だから", "のに", "ってこと", "ね", "かも", "よね"
         ]
-        if not any(hint in lines[1] for hint in reply_hints) and not any(hint in lines[2] for hint in reply_hints):
+        if not any(hint in line for hint in lines[1:] for hint in reply_hints):
             return False
 
         # 過剰語彙一致（反復構文検出）
@@ -42,28 +46,24 @@ def is_valid_post(text: str) -> bool:
         return False
 
     # 共通チェック：英数字ノイズ
-    if re.search(r"[a-zA-Z]{4,}", text): return False
-    if re.search(r"[0-9]{5,}", text): return False
-    if re.search(r"[a-zA-Z0-9]{6,}", text): return False
+    if re.search(r"[a-zA-Z0-9]{4,}", text):
+        return False
 
     # 異体字・簡体字等
-    if re.search(r"[锕鱻靐靇㐀-㛿㐂-㊿㋿㐧䲣]", text): return False
+    if re.search(r"[锕鱻靐靇㐀-㛿㐂-㊿㋿㐧䲣]", text):
+        return False
 
     # 記号チェック
     if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？「」（）ー…％：/\-\s]", text):
         return False
 
     # 禁止語
-    banned_words = ["構文", "主語", "美しい", "物語", "語尾", "構成"]
+    banned_words = ["構文", "主語", "語尾", "構成"]
     if any(word in text for word in banned_words):
         return False
 
     # 過剰な文末反復
     if len(re.findall(r"(た|だ|です|ました)[。！？]", text)) == 3:
-        return False
-
-    # CM的短文
-    if sum(text.count(p) for p in "。！？") <= 1 and len(text) < 40:
         return False
 
     # 不自然語尾検知
