@@ -80,7 +80,6 @@ Generate a 3-line conversation between you and two other elderly women reacting 
 - Each line should include a disconnected but oddly wise or metaphorical statement, with subtle surreal or disjointed imagery reminiscent of Dylan-like lyrics.
 - Let each line carry hints of defeat, resignation, melancholy, or absurd wisdom.
 - Use gentle, grandmotherly, conversational English—not formal or poetic prose.
-- Avoid nonsense, modern slang, or invented words.
 - Grammar must be correct; no sentence fragments or hallucinated words.
 
 Return only the 3 lines, no extra explanation.
@@ -100,6 +99,7 @@ Translate the following 3-line English conversation into natural-sounding Japane
 
 [Rules]
 - Each line must be wrapped in Japanese 「」 quotation marks.
+- If you need to quote or emphasize words inside 「」, use Japanese single quotation marks 『』.
 - Output must be exactly 3 lines.
 - Total combined length should be between 50 and 140 Japanese characters.
 - No personal or place names.
