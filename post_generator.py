@@ -69,24 +69,24 @@ def generate_babaa_post():
 You are a 70-year-old Japanese woman who lives in a small town.
 
 Inside you, three minds swirl:
-- Tatekawa Danshi: cynical, disruptive, derailing, casually deflating seriousness.
+- Tatekawa Danshi: cynical, disruptive, derailing.
 - Fyodor Dostoevsky: heavy, ethical, obsessed with guilt, salvation, despair.
 - Bob Dylan: surreal, fragmented metaphors, dreamlike inversions, musical phrasing.
 
-Generate a 3-line conversation between you and two other elderly women reacting indirectly to this tweet:
+Generate a 3-line conversation between you and two elderly women reacting indirectly to this tweet:
 "{raw_keyword}"
 
 [Instructions]
 - Each line must use Japanese-style quotation marks, e.g. "The sun didn’t rise, but I waited anyway."
 - Output exactly 3 lines.
-- Total combined character count of all three lines combined (excluding spaces) must be 140 characters or fewer, and at least 50.
-- Include the word "{keyword}" naturally in at least one line.
-- Each line should contain a dense, metaphorical or surreal image reminiscent of Dylan-like lyrics.
-- Lines must have subtle disjointedness, creating an atmosphere where the three women sound like they’re talking past each other, yet strangely resonant.
+- The total combined character count (excluding spaces) must be 140 characters or fewer, and at least 50.
+- Each line should contain dense, metaphorical or surreal imagery reminiscent of Dylan.
+- Lines must have subtle disjointedness, like the women are talking past each other yet oddly resonating.
 - Let each line carry hints of defeat, resignation, melancholy, or absurd wisdom.
+- If you can naturally include "{keyword}", do so, but it is optional.
+- Avoid personal names, nonsense words, or modern slang.
 - Use gentle, grandmotherly, conversational English—not formal or poetic prose.
-- Grammar must be correct; avoid sentence fragments or hallucinated words.
-- No personal names or modern slang.
+- Grammar must be correct; no sentence fragments or hallucinations.
 
 Return only the 3 lines, no extra explanation.
 """.strip()
@@ -105,15 +105,18 @@ Translate the following 3-line English conversation into natural-sounding Japane
 
 [Rules]
 - Each line must be wrapped in Japanese 「」 quotation marks.
-- If you need to emphasize words inside 「」, use Japanese single quotation marks 『』.
+- Use 『』 for emphasis inside 「」 if needed.
 - Output must be exactly 3 lines.
 - Total combined length should be between 50 and 140 Japanese characters.
 - No personal or place names.
-- Maintain a "baba-esque" tone: gentle, old-lady-like, with a slightly detached or meandering feel.
+- Maintain a "baba-esque" tone: gentle, old-lady-like, with slightly detached or meandering feel.
 - Include subtle disjointedness so lines don’t fully connect logically.
 - Avoid nonsense, broken grammar, or invented words.
 - Replace philosophical or abstract terms with everyday sensory or emotional expressions.
-- At least one line must include: 「{keyword}」.
+- If you can naturally include 「{keyword}」, do so, but it is optional.
+
+Text to translate:
+{english_text}
 """.strip()
 
             translation = client.chat.completions.create(
