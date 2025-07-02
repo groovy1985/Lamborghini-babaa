@@ -68,19 +68,20 @@ def generate_babaa_post():
             en_prompt = f"""
 You are a 70-year-old Japanese woman who lives in a small town.
 
-Generate a 3-line conversation between you and two other elderly women.
+Generate a 3-line conversation between you and two other elderly women reacting indirectly to this tweet:
+"{raw_keyword}"
 
 [Instructions]
 - Avoid personal names and specific place names.
 - Each line must use Japanese-style quotation marks, e.g. "The sun didn’t rise, but I waited anyway."
 - Output exactly 3 lines.
-- Total character count of all three lines combined (excluding spaces) must be 140 characters or fewer, and at least 50.
+- Total combined character count of all three lines combined (excluding spaces) must be 140 characters or fewer, and at least 50.
 - Include the word "{keyword}" naturally in at least one line.
-- Make each line sound like a disconnected but oddly wise or proverb-like statement, without clear context or continuity.
-- Hints of defeat, resignation, or melancholy must be present.
+- Each line should include a disconnected but oddly wise or metaphorical statement, with subtle surreal or disjointed imagery reminiscent of Dylan-like lyrics.
+- Let each line carry hints of defeat, resignation, melancholy, or absurd wisdom.
 - Use gentle, grandmotherly, conversational English—not formal or poetic prose.
 - Avoid nonsense, modern slang, or invented words.
-- Grammar must be correct; no sentence fragments or hallucinations.
+- Grammar must be correct; no sentence fragments or hallucinated words.
 
 Return only the 3 lines, no extra explanation.
 """.strip()
@@ -102,10 +103,11 @@ Translate the following 3-line English conversation into natural-sounding Japane
 - Output must be exactly 3 lines.
 - Total combined length should be between 50 and 140 Japanese characters.
 - No personal or place names.
-- Keep a "baba-esque" feeling: gentle, old-lady-like, with a slightly detached or meandering tone.
-- Avoid nonsensical, broken grammar, or invented words.
-- Replace philosophical terms with everyday sensory or emotional expressions.
-- At least one line must include the word: 「{keyword}」
+- Maintain a "baba-esque" feeling: gentle, old-lady-like, with a slightly detached or meandering tone.
+- Include subtle disjointedness so lines don’t fully connect logically.
+- Avoid nonsense, broken grammar, or invented words.
+- Replace philosophical or abstract terms with everyday sensory or emotional expressions.
+- At least one line must include: 「{keyword}」.
 
 Text to translate:
 {english_text}
