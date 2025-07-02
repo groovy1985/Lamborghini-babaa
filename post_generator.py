@@ -40,10 +40,9 @@ def generate_abstracted_keyword(raw_keyword: str) -> str:
     prompt = f"""
 The word is: "{raw_keyword}"
 
-Imagine a 70-year-old Japanese woman reflecting on this word. Generate one short abstract expression in Japanese
-that captures the feeling or image behind the word. Do not use made-up or non-existent words. Use only existing Japanese words.
-The phrase should feel like something she would mutter while thinking about the concept behind the word.
-Return only the abstracted phrase, no explanations.
+Imagine a 70-year-old Japanese woman reflecting on this word. Generate a short abstract expression in Japanese
+that captures its feeling or image. Do not invent new words; use only existing Japanese words.
+Return only the phrase, no explanation.
 """.strip()
 
     response = client.chat.completions.create(
@@ -69,32 +68,19 @@ def generate_babaa_post():
             en_prompt = f"""
 You are a 70-year-old Japanese woman who lives in a small town.
 
-Inside you, four minds quietly swirl:
-- Bob Dylan: poetic and melancholic
-- Tatekawa Danshi: cynical, disruptive
-- Fyodor Dostoevsky: heavy, ethical, reflective
-- “Ore”: a silent observer who says little, but distorts much
-
-Generate a 3-line casual conversation between you and two other elderly women.
+Generate a 3-line conversation between you and two other elderly women.
 
 [Instructions]
-- Avoid personal names or specific proper nouns.
-- Each line must be in Japanese-style quotation marks, e.g. 「～」.
-- Generate exactly 3 lines.
-- The total combined character count of the three lines (excluding spaces) must be 140 characters or fewer, and at least 50 characters.
-- Include the word "{keyword}" somewhere naturally.
-- Include:
-    - Defeat or resignation about everyday life (e.g., bills, health, loneliness).
-    - Oddly wise or proverb-like phrasing.
-    - Quiet despair or resignation.
-- Blend 1-2 of these minds:
-    - Dostoevsky: contradictions, despair, guilt.
-    - Dylan: musical phrasing, surreal shifts.
-    - Danshi: dark humor, playful cynicism.
-    - Ore: heavy silences, abrupt ends.
+- Avoid personal names and specific place names.
+- Each line must use Japanese-style quotation marks, e.g. "The sun didn’t rise, but I waited anyway."
+- Output exactly 3 lines.
+- Total character count of all three lines combined (excluding spaces) must be 140 characters or fewer, and at least 50.
+- Include the word "{keyword}" naturally in at least one line.
+- Make each line sound like a disconnected but oddly wise or proverb-like statement, without clear context or continuity.
+- Hints of defeat, resignation, or melancholy must be present.
 - Use gentle, grandmotherly, conversational English—not formal or poetic prose.
-- Avoid nonsense, complex words, modern slang, or invented words.
-- Grammar must be correct. No sentence fragments or hallucinated words.
+- Avoid nonsense, modern slang, or invented words.
+- Grammar must be correct; no sentence fragments or hallucinations.
 
 Return only the 3 lines, no extra explanation.
 """.strip()
@@ -102,51 +88,11 @@ Return only the 3 lines, no extra explanation.
             response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": en_prompt}],
-                temperature=1.2,
+                temperature=1.3,
                 timeout=10,
             )
             english_text = response.choices[0].message.content.strip()
             print(f"[EN] {english_text}")
 
             translate_prompt = f"""
-以下の文章を、日本語の自然な高齢女性の3行会話に翻訳してください。
-
-（ルール）
-- 必ず3行にしてください。各行を日本語の鉤括弧「」で囲んでください。
-- 3行合わせた文字数（空白を含まない）は50文字以上140文字以内に収めてください。
-- 個人名や特定の固有名詞は禁止。
-- ババァらしいとぼけた感じを出しつつも、文法は必ず正しく、主語・述語が自然につながるようにしてください。破綻構文、意味不明な単語、存在しない造語は禁止します。
-- 抽象的・哲学的な言葉は生活感や感覚に置き換えてください。
-- 生活への敗北感、諦め、妙に名言めいた響きを必ず含めてください。
-- 呼吸と語りの感じが「ババァ」であることを最優先にしてください。
-- 可能ならこの言葉を自然に含めてください：「{keyword}」
-
-翻訳対象:
-{english_text}
-""".strip()
-
-            translation = client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": translate_prompt}],
-                temperature=1.0,
-                timeout=15,
-            )
-            japanese_text = translation.choices[0].message.content.strip()
-            print(f"[JP] {japanese_text}")
-
-            dialogue_lines = re.findall(r'「.*?」', japanese_text, re.DOTALL)
-            text_len = len(re.sub(r'\s', '', japanese_text))
-
-            if len(dialogue_lines) == 3 and 50 <= text_len <= 140:
-                increment_daily_count()
-                return {"text": "\n".join(dialogue_lines), "timestamp": datetime.now().isoformat()}
-
-            print(f"[WARN] フォーマット不適合：lines={len(dialogue_lines)}, text_len={text_len}")
-            time.sleep(1)
-
-        except Exception as e:
-            print(f"[ERROR] APIエラー: {e}")
-            time.sleep(2)
-
-    print("[FAILED] 全試行失敗：投稿スキップ")
-    return None
+Translate the following 3-line English conversation into natural-sounding Japanese lines as if spoken by elderly Japanese wome
