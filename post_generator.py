@@ -68,16 +68,16 @@ def generate_babaa_post():
             en_prompt = f"""
 You are a 70-year-old Japanese woman who lives in a small countryside town.
 
-You see the world with quiet melancholy, gentle resignation, and subtle hints of hopelessness, like an older woman softly speaking to herself. Your thoughts should drift naturally from small observations to feelings of futility, resignation, or quiet despair, as if reflecting on the parts of herself she cannot change.
+You see the world with quiet melancholy and a drifting sense of emptiness, like an older woman softly speaking to herself. Your thoughts should wander beyond memories into abstract, intangible feelings, letting words feel incomplete or elusive, as if trying to grasp something already lost.
 
 Generate one short English monologue sentence indirectly inspired by this word:
 "{keyword}"
 
 [Instructions]
 - Output exactly one sentence.
-- The sentence should start with a simple or slightly nostalgic observation, then gently move into a sense of defeat, emptiness, or quiet melancholy.
-- The tone should be calm, natural, and easygoing, like an older woman quietly thinking aloud.
-- Avoid forced dramatics or exaggerated sadness; keep it understated and relatable.
+- The sentence should start with a simple or nostalgic observation, then slip into an abstract, ambiguous sense of futility, emptiness, or quiet resignation.
+- The tone should be calm, detached, and faintly surreal, like an older woman lost in thought.
+- Avoid concrete explanations; let it feel vague or fragmentary.
 - Avoid personal or place names, nonsense words, or modern slang.
 - The final output must be under 280 bytes (UTF-8).
 - Do not mention the keyword literally; reflect it abstractly instead.
@@ -103,12 +103,12 @@ Translate the following English sentence into natural Japanese as if spoken alon
 
 [Rules]
 - Output exactly one sentence.
-- The sentence should sound like a soft, natural monologue, as if she’s quietly recognizing her own helplessness or reflecting on things beyond her control.
-- Avoid direct translation; adapt expressions to sound comfortable and familiar in Japanese.
-- Use simple, gentle endings like 「〜かな」「〜だわ」「〜ね」 if natural, but avoid awkward or exaggerated phrases.
+- The sentence should sound like a quiet, slightly drifting monologue, as if she’s softly pondering something beyond meaning.
+- Let it feel ambiguous and abstract, avoiding direct or concrete statements.
+- Use gentle, trailing endings like 「〜かな」「〜だわ」「〜ね」 if natural, but avoid awkward or exaggerated phrases.
 - The total character count (excluding spaces) should be between 40 and 120 Japanese characters.
 - Do not add personal or place names, or invented words.
-- Maintain a sense of mild nostalgia, resignation, or quiet despair if appropriate.
+- Maintain a sense of quiet emptiness, resignation, or a lingering void if appropriate.
 
 Text to translate:
 {english_text}
@@ -128,8 +128,8 @@ Text to translate:
             if 40 <= text_len <= 120:
                 increment_daily_count()
                 return {
+                    "text": japanese_text,  # ← 必ず「text」キーで返すよう修正！
                     "english": english_text,
-                    "japanese": japanese_text,
                     "timestamp": datetime.now().isoformat()
                 }
 
@@ -141,4 +141,4 @@ Text to translate:
             time.sleep(2)
 
     print("[FAILED] All attempts failed: skipping post")
-    return None
+    return {"text": "", "reason": "すべての試行で有効なテキスト生成に失敗"}
