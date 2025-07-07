@@ -66,56 +66,49 @@ def generate_babaa_post():
     for _ in range(max_attempts):
         try:
             en_prompt = f"""
-You are a 70-year-old Japanese woman who lives in a small town.
+You are a 70-year-old Japanese woman who lives in a small countryside town.
 
-Inside you swirl three personalities:
-- Tatekawa Danshi: cynical, disruptive, derailing.
-- Fyodor Dostoevsky: heavy, ethical, obsessed with guilt, salvation, despair.
-- Bob Dylan: surreal, fragmented metaphors, dreamlike inversions, musical phrasing.
+You see the world with quiet melancholy and subtle absurd wisdom, like a grandmother musing alone. Your thoughts drift from mundane observations to surreal reflections, and end on an unexpected or ambiguous note.
 
-Generate a 3-line conversation between you and two elderly women reacting indirectly to this tweet:
-"{raw_keyword}"
+Generate one short English monologue sentence indirectly inspired by this word:
+"{keyword}"
 
 [Instructions]
-- For each of the three lines, randomly select 1-2 of the above personalities to influence it. Repetition of personalities across lines is allowed.
-- Ensure elements from different personalities do not conflict and integrate them naturally in each line.
-- Each line must use Japanese-style quotation marks, e.g. "The sun didn’t rise, but I waited anyway."
-- Output exactly 3 lines.
-- The total combined character count (excluding spaces) must be between 50 and 140.
-- Each line should include dense, metaphorical or surreal imagery reminiscent of Dylan.
-- Lines must have subtle disjointedness so the women sound like they’re talking past each other, yet oddly resonate.
-- Let each line carry hints of defeat, resignation, melancholy, or absurd wisdom.
-- If you can naturally include "{keyword}", do so, but it is optional.
-- Avoid personal names, nonsense words, or modern slang.
-- Use gentle, grandmotherly, conversational English—not formal or poetic prose.
+- Output exactly one sentence.
+- The sentence should start with a mundane or philosophical observation, shift into ambiguous or surreal imagery, and end with an eccentric or open-ended nuance.
+- The tone should be quiet, melancholic, and slightly detached, like a gentle grandmother talking to herself.
+- Use plain, grandmotherly conversational English, not formal or poetic prose.
+- Avoid personal or place names, nonsense words, or modern slang.
 - Grammar must be correct; no sentence fragments or hallucinations.
+- The final output must be under 280 bytes (UTF-8).
+- Do not mention the keyword literally; reflect it abstractly instead.
 
-Return only the 3 lines, no extra explanation.
+Return only the sentence, no explanations.
 """.strip()
 
             response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": en_prompt}],
-                temperature=1.3,
+                temperature=1.2,
                 timeout=10,
             )
             english_text = response.choices[0].message.content.strip()
             print(f"[EN] {english_text}")
 
+            if not english_text or len(english_text.strip()) == 0:
+                print("⚠️ 英語生成が空文字。リトライ中...")
+                continue
+
             translate_prompt = f"""
-Translate the following 3-line English conversation into natural-sounding Japanese as if spoken by elderly Japanese women.
+Translate the following English sentence into natural Japanese as if spoken alone by a 70-year-old Japanese woman.
 
 [Rules]
-- Each line must be wrapped in Japanese 「」 quotation marks.
-- Use 『』 for emphasis inside 「」 if needed.
-- Output must be exactly 3 lines.
-- Total combined length should be between 50 and 140 Japanese characters.
-- No personal or place names.
-- Maintain a "baba-esque" tone: gentle, old-lady-like, with a slightly detached or meandering feel.
-- Include subtle disjointedness so lines don’t fully connect logically.
-- Avoid nonsense, broken grammar, or invented words.
-- Replace philosophical or abstract terms with everyday sensory or emotional expressions.
-- If you can naturally include 「{keyword}」, do so, but it is optional.
+- Output exactly one sentence.
+- The sentence should sound like a quiet, slightly rambling monologue.
+- Avoid direct translation; adapt expressions to sound natural in Japanese.
+- The total character count (excluding spaces) should be between 40 and 120 Japanese characters.
+- Do not add personal or place names, or invented words.
+- Maintain hints of melancholy, resignation, or subtle absurdity.
 
 Text to translate:
 {english_text}
@@ -124,20 +117,23 @@ Text to translate:
             translation = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": translate_prompt}],
-                temperature=1.0,
+                temperature=0.8,
                 timeout=15,
             )
             japanese_text = translation.choices[0].message.content.strip()
             print(f"[JP] {japanese_text}")
 
-            dialogue_lines = re.findall(r'「.*?」', japanese_text, re.DOTALL)
             text_len = len(re.sub(r'\s', '', japanese_text))
 
-            if len(dialogue_lines) == 3 and 50 <= text_len <= 140:
+            if 40 <= text_len <= 120:
                 increment_daily_count()
-                return {"text": "\n".join(dialogue_lines), "timestamp": datetime.now().isoformat()}
+                return {
+                    "english": english_text,
+                    "japanese": japanese_text,
+                    "timestamp": datetime.now().isoformat()
+                }
 
-            print(f"[WARN] Format mismatch: lines={len(dialogue_lines)}, text_len={text_len}")
+            print(f"[WARN] Length mismatch: text_len={text_len}")
             time.sleep(1)
 
         except Exception as e:
