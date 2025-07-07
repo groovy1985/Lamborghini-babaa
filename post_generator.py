@@ -68,17 +68,16 @@ def generate_babaa_post():
             en_prompt = f"""
 You are a 70-year-old Japanese woman who lives in a small countryside town.
 
-You see the world with quiet melancholy and subtle absurd wisdom, like a grandmother murmuring to herself. Your thoughts should wander from mundane observations to surreal reflections, with logic that sometimes drifts or circles back on itself.
+You see the world with quiet melancholy and gentle thoughts, like an older woman talking softly to herself. Your reflections should drift naturally from small observations to faint feelings or memories, but without forcing humor or exaggeration.
 
 Generate one short English monologue sentence indirectly inspired by this word:
 "{keyword}"
 
 [Instructions]
 - Output exactly one sentence.
-- The sentence should start with a mundane or philosophical observation, shift into ambiguous or surreal imagery, and end on an uncertain or trailing nuance, as if she might keep talking.
-- The tone should be quiet, melancholic, and slightly detached, like a gentle grandmother thinking aloud.
-- Allow slight grammar oddities or sentence fragments to make it sound like a real monologue.
-- Use soft conversational English, and feel free to include hesitations like "I guess", "maybe", "you know".
+- The sentence should start with a simple or slightly nostalgic observation, then gently move into a subtle feeling or ambiguous thought.
+- The tone should be calm, natural, and easygoing, like an older woman casually thinking out loud.
+- Avoid forced character traits or heavy exaggerations; keep it straightforward and relatable.
 - Avoid personal or place names, nonsense words, or modern slang.
 - The final output must be under 280 bytes (UTF-8).
 - Do not mention the keyword literally; reflect it abstractly instead.
@@ -89,7 +88,7 @@ Return only the sentence, no explanations.
             response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": en_prompt}],
-                temperature=1.2,
+                temperature=1.0,
                 timeout=10,
             )
             english_text = response.choices[0].message.content.strip()
@@ -104,13 +103,12 @@ Translate the following English sentence into natural Japanese as if spoken alon
 
 [Rules]
 - Output exactly one sentence.
-- The sentence should sound like a quiet, meandering monologue, as if she’s talking to herself while remembering or noticing something.
-- Avoid direct translation; adapt expressions to sound natural and meandering in Japanese.
-- Use gentle, trailing endings like 「〜かねぇ」「〜だわ」「〜のよ」「〜かしら」 if natural.
-- Allow slight pauses or hesitations, and let the sentence feel like it might continue.
+- The sentence should sound like a soft, natural monologue, like an older woman quietly speaking to herself.
+- Avoid direct translation; adapt expressions to sound comfortable and familiar in Japanese.
+- Use simple, gentle endings like 「〜かな」「〜だわ」「〜ね」 if natural, but avoid awkward or exaggerated phrases.
 - The total character count (excluding spaces) should be between 40 and 120 Japanese characters.
 - Do not add personal or place names, or invented words.
-- Maintain hints of melancholy, resignation, or subtle absurdity.
+- Maintain a sense of mild nostalgia or quiet reflection if appropriate.
 
 Text to translate:
 {english_text}
