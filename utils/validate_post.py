@@ -1,58 +1,46 @@
 import re
 
-def is_valid_post(text: str) -> bool:
+def is_valid_monologue(text: str) -> bool:
     """
-    validate_post.py｜構文国家：KZHX-L4.1 準拠検証器（哲学語・抽象語の直言を一部許容）
+    validate_post.py｜構文国家：KZHX-L4.2 独白専用検証器（ver.1.3独白版）
+    - GPT語尾破綻・構文崩壊・意味逸脱の中間ゾーンを精密に選別
+    - 独白（1段落・鉤括弧なし）のみを許容する
     """
 
     if not text or not (20 <= len(text) <= 140):
+        # 20文字未満または140文字超過は無効
         return False
 
-    lines = [line.strip() for line in text.strip().splitlines() if line.strip()]
-    if len(lines) != 3:
+    line = text.strip()
+
+    # 独白：鉤括弧が含まれていないこと
+    if "「" in line or "」" in line:
         return False
 
-    if not all(line.startswith("「") and line.endswith("」") for line in lines):
+    # 英数字4文字以上連続はGPT由来ノイズと判断して排除
+    if re.search(r"[a-zA-Z0-9]{4,}", text):
         return False
 
-    # ❌ ノイズ英数字列（明らかな乱数・ランダム英語）
-    if re.search(r"[a-zA-Z]{4,}", text): return False
-    if re.search(r"[0-9]{5,}", text): return False
-    if re.search(r"[a-zA-Z0-9]{6,}", text): return False
-
-    # ⚠️ 記号制限（日本語会話で自然な範囲のみ許容）
-    if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？「」（）ー…％：/\-\s]", text):
+    # 異体字・簡体字など、異常漢字の混入チェック
+    if re.search(r"[锕鱻靐靇㐀-㛿㐂-㊿㋿㐧䲣]", text):
         return False
 
-    # ❌ 禁止語（美化・感動・説明臭・テーマ語系）※哲学語・抽象語は緩和済
-    banned_words = [
-         "構文", "主語", "美しい", 
-         "物語", "語尾", 
-        "構成",
-    ]
+    # 記号チェック：日本語で通常使わない記号を排除
+    if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？ー…％：/\-\s]", text):
+        return False
+
+    # 禁止語：構文国家内で構造記述に該当し不自然さを生む単語
+    banned_words = ["構文", "主語", "語尾", "構成"]
     if any(word in text for word in banned_words):
         return False
 
-    # ❌ 文末の過剰反復（リズム崩壊の防止）
-    if len(re.findall(r"(た|だ|です|ました)[。！？]", text)) == 3:
-        return False
-
-    # ❌ CM的短文（意味性の固定化を避ける）
-    if sum(text.count(p) for p in "。！？") <= 1 and len(text) < 40:
-        return False
-
-    # ✅ 応答構造の擬態確認（対話らしさの担保）
-    reply_hints = ["それで", "やっぱり", "うちも", "たしかに", "でも", "じゃあ", "だから", "のに", "ってこと", "ね", "かも", "よね"]
-    if not any(hint in lines[1] for hint in reply_hints) and not any(hint in lines[2] for hint in reply_hints):
-        return False
-
-    # ❌ 過剰な語彙一致の防止（反復構文のバグ対策）
-    def shared_ratio(a, b):
-        a_set = set(re.findall(r'[\u3040-\u30FF\u4E00-\u9FFF]+', a))
-        b_set = set(re.findall(r'[\u3040-\u30FF\u4E00-\u9FFF]+', b))
-        return len(a_set & b_set) / max(len(a_set), 1)
-
-    if shared_ratio(lines[0], lines[2]) > 0.7:
+    # 不自然な文末パターン：GPTの典型的な語尾破綻
+    unnatural_ending_patterns = [
+        r"ではや$", r"だよよ$", r"のかの$", r"でしょうの$", r"なんだがよ$",
+        r"だったがよ$", r"らしいけどよ$", r"だったよなぁ$", r"ではか$",
+        r"だというのよ$", r"ますことよ$", r"たというわよ$", r"みたいでしたわ$", r"でしてたのよ$"
+    ]
+    if any(re.search(pat, line) for pat in unnatural_ending_patterns):
         return False
 
     return True
