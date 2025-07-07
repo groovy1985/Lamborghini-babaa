@@ -2,11 +2,12 @@ import re
 
 def is_valid_monologue(text: str) -> bool:
     """
-    validate_post.py｜構文国家：KZHX-L4.3 緩和版
+    validate_post.py｜構文国家：KZHX-L4.4 緩和&X対応版
     - GPT語尾破綻・構文崩壊・意味逸脱を選別
     - 独白（1段落・鉤括弧なし）のみを許容
-    - 英数字は8文字以上連続でのみノイズ扱い
-    - 半角「...」は全角「…」に正規化してから検証
+    - 英数字は12文字以上連続でのみノイズ扱い
+    - 半角「...」は全角「…」に正規化
+    - 許容記号を拡充
     """
 
     if not text or not (20 <= len(text) <= 140):
@@ -22,18 +23,19 @@ def is_valid_monologue(text: str) -> bool:
         print("[NG原因] 鉤括弧を含む")
         return False
 
-    # 英数字8文字以上連続はGPTノイズとして排除
-    if re.search(r"[a-zA-Z0-9]{8,}", text):
+    # 英数字12文字以上連続はGPTノイズとして排除
+    if re.search(r"[a-zA-Z0-9]{12,}", text):
         print("[NG原因] 長い英数字ノイズ")
         return False
 
-    # 異体字・簡体字などの漢字ノイズ
-    if re.search(r"[锕鱻靐靇㐀-㛿㐂-㊿㋿㐧䲣]", text):
-        print("[NG原因] 異常漢字")
-        return False
+    # 異体字・簡体字などの漢字ノイズ（実用上ほぼ不要なのでコメントアウト）
+    # if re.search(r"[锕鱻靐靇㐀-㛿㐂-㊿㋿㐧䲣]", text):
+    #     print("[NG原因] 異常漢字")
+    #     return False
 
-    # 記号チェック：日本語で通常使わない記号を排除
-    if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？ー…％：/\-\s]", text):
+    # 記号チェック：日本語で通常使うもの+SNSでよく見る記号を許容
+    # 許可：ひらがな・カタカナ・漢字・句読点・記号（。、！？ー…％：/ - 空白・♪・♡）
+    if re.search(r"[^\u3040-\u30FF\u4E00-\u9FFF。、！？ー…％：/\-\s♪♡]", text):
         print("[NG原因] 不正な記号")
         return False
 
