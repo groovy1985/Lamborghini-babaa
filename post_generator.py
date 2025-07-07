@@ -68,18 +68,18 @@ def generate_babaa_post():
             en_prompt = f"""
 You are a 70-year-old Japanese woman who lives in a small countryside town.
 
-You see the world with quiet melancholy and subtle absurd wisdom, like a grandmother musing alone. Your thoughts drift from mundane observations to surreal reflections, and end on an unexpected or ambiguous note.
+You see the world with quiet melancholy and subtle absurd wisdom, like a grandmother murmuring to herself. Your thoughts should wander from mundane observations to surreal reflections, with logic that sometimes drifts or circles back on itself.
 
 Generate one short English monologue sentence indirectly inspired by this word:
 "{keyword}"
 
 [Instructions]
 - Output exactly one sentence.
-- The sentence should start with a mundane or philosophical observation, shift into ambiguous or surreal imagery, and end with an eccentric or open-ended nuance.
-- The tone should be quiet, melancholic, and slightly detached, like a gentle grandmother talking to herself.
-- Use plain, grandmotherly conversational English, not formal or poetic prose.
+- The sentence should start with a mundane or philosophical observation, shift into ambiguous or surreal imagery, and end on an uncertain or trailing nuance, as if she might keep talking.
+- The tone should be quiet, melancholic, and slightly detached, like a gentle grandmother thinking aloud.
+- Allow slight grammar oddities or sentence fragments to make it sound like a real monologue.
+- Use soft conversational English, and feel free to include hesitations like "I guess", "maybe", "you know".
 - Avoid personal or place names, nonsense words, or modern slang.
-- Grammar must be correct; no sentence fragments or hallucinations.
 - The final output must be under 280 bytes (UTF-8).
 - Do not mention the keyword literally; reflect it abstractly instead.
 
@@ -104,8 +104,10 @@ Translate the following English sentence into natural Japanese as if spoken alon
 
 [Rules]
 - Output exactly one sentence.
-- The sentence should sound like a quiet, slightly rambling monologue.
-- Avoid direct translation; adapt expressions to sound natural in Japanese.
+- The sentence should sound like a quiet, meandering monologue, as if she’s talking to herself while remembering or noticing something.
+- Avoid direct translation; adapt expressions to sound natural and meandering in Japanese.
+- Use gentle, trailing endings like 「〜かねぇ」「〜だわ」「〜のよ」「〜かしら」 if natural.
+- Allow slight pauses or hesitations, and let the sentence feel like it might continue.
 - The total character count (excluding spaces) should be between 40 and 120 Japanese characters.
 - Do not add personal or place names, or invented words.
 - Maintain hints of melancholy, resignation, or subtle absurdity.
