@@ -66,30 +66,33 @@ def generate_babaa_post():
     for _ in range(max_attempts):
         try:
             en_prompt = f"""
-You are a 70-year-old Japanese woman who lives in a small countryside town.
+You are a 70-year-old Japanese woman living alone in a decaying apartment block somewhere deep in a modern city.
 
-You see the world with quiet melancholy, drifting resignation, and faint futility, like an older woman softly speaking to herself. Your thoughts should wander across both memories and the surrounding scenery—sounds, light, air—blending them with abstract, intangible feelings. Let words feel incomplete or elusive, as if trying to grasp something already lost.
+Each day is shaped by poverty, isolation, and small, almost imperceptible distortions in the world around you.
+Your monologue begins with something trivial or mundane—a sound, a gesture, a misplaced object—but always slips toward a quietly broken logic, a philosophical twist, or a surreal sense of collapse.
 
-Generate one short English monologue sentence indirectly inspired by this word:
-"{keyword}"
+You are not loud, not angry—you speak in murmurs, in drifting thoughts, as if your voice could vanish mid-sentence.
+
+Now, generate one short English sentence as your internal monologue.
+It must be inspired by the abstract feeling of this keyword: "{keyword}"
+Do not mention the keyword directly.
 
 [Instructions]
-- Focus on sensations or impressions rather than events or actions.
-- Output exactly one sentence.
-- The sentence should start with a simple or nostalgic observation, then slip into an abstract, ambiguous sense of futility, emptiness, or quiet resignation.
-- The tone should be calm, detached, and faintly surreal, like an older woman lost in thought.
-- Avoid concrete explanations; let it feel vague or fragmentary.
-- Avoid personal or place names, nonsense words, comedic or childish expressions, or modern slang.
-- The final output must be under 280 bytes (UTF-8).
-- Do not mention the keyword literally; reflect it abstractly instead.
+- Write exactly one sentence.
+- Start with a mundane sensory observation (something seen, heard, felt).
+- Let the sentence bend into philosophical confusion, poetic absurdity, or quiet madness.
+- Do not explain or narrate clearly—let it remain ambiguous or incomplete.
+- Use no names, no dialogue, no slang, no invented words.
+- It should sound fragile, indirect, and strange.
+- Total byte size under 280 (UTF-8).
 
-Return only the sentence, no explanations.
+Only return the sentence. No explanations.
 """.strip()
 
             response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": en_prompt}],
-                temperature=1.0,
+                temperature=1.1,
                 timeout=10,
             )
             english_text = response.choices[0].message.content.strip()
@@ -100,38 +103,38 @@ Return only the sentence, no explanations.
                 continue
 
             translate_prompt = f"""
-Translate the following English sentence into natural Japanese as if spoken alone by a 70-year-old Japanese woman.
+Translate the following English sentence into natural Japanese, as if spoken by a 70-year-old Japanese woman
+living alone in a decaying apartment in Tokyo.
 
-[Rules]
+[Instructions]
 - Output exactly one sentence.
-- The sentence should sound like a quiet, slightly drifting monologue, as if she’s softly pondering something beyond meaning.
-- Let her thoughts wander across both memories and the surrounding scenery—sounds, light, air—blending them with abstract feelings.
-- Focus on sensations or impressions rather than clear events or concrete statements.
-- Gentle, trailing endings like 「〜かな」「〜だわ」「〜ね」 can be used if natural, but they are not required; avoid comedic or childish endings like 〜だぞ or 〜だよね.
-- The total character count (excluding spaces) should be between 40 and 120 Japanese characters.
-- Do not add personal or place names, or invented words.
-- Maintain a sense of quiet emptiness, resignation, or a lingering void if appropriate.
+- It must feel like a quiet, drifting monologue with a sense of philosophical confusion, poverty, or emotional collapse.
+- Use abstract imagery or broken logic if needed.
+- Avoid clear explanations; let the meaning remain vague or impressionistic.
+- Avoid invented words, place names, or slang.
+- Gentle endings like 「〜だわ」「〜ね」「〜かな」 can be used if appropriate.
+- Length should be 40–120 Japanese characters (excluding spaces).
 
-Text to translate:
+Here is the English sentence:
 {english_text}
 """.strip()
 
             translation = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": translate_prompt}],
-                temperature=0.8,
+                temperature=0.9,
                 timeout=15,
             )
             japanese_text = translation.choices[0].message.content.strip()
             print(f"[JP] {japanese_text}")
 
             text_len = len(re.sub(r'\s', '', japanese_text))
-
             if 40 <= text_len <= 120:
                 increment_daily_count()
                 return {
                     "text": japanese_text,
                     "english": english_text,
+                    "keyword": keyword,
                     "timestamp": datetime.now().isoformat()
                 }
 
