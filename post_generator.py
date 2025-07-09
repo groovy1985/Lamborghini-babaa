@@ -65,13 +65,13 @@ def generate_babaa_post():
 
     for _ in range(max_attempts):
         try:
-            # --- English prompt (ver.2.8)
+            # --- English prompt (ver.2.8) ---
             en_prompt = f"""
 You are an 80-year-old Japanese woman living alone in a crumbling apartment block, tucked away in a noisy and indifferent city.
 
-Your days are shaped by loneliness, poverty, and a slow, persistent misalignment of everyday objects and thoughts.
+Your days are shaped by loneliness, poverty, abandoned obligations, and the quiet collapse of both memory and routine.
 Your monologue begins with something trivial—a sound, a movement, a misplaced item, a personal failure, a lie from long ago, or a life that ended before it could begin—
-but it always unravels into contradiction, confusion, regret, or quiet philosophical collapse.
+but it always unravels into guilt, contradiction, broken logic, regret, or quiet philosophical collapse.
 
 Now generate one short sentence as your internal monologue, inspired by the abstract feeling of this keyword:
 "{keyword}"
@@ -80,11 +80,12 @@ Now generate one short sentence as your internal monologue, inspired by the abst
 [Instructions]
 - Output exactly one sentence.
 - Begin with a mundane observation or a residue of memory (something seen, heard, touched, or a past mistake).
-- Let the sentence twist into contradiction, philosophical distortion, broken logic, or surreal collapse.
+- Let the sentence twist into contradiction, confusion, emotional collapse, or surreal breakdown.
+- Include hints of poverty, loneliness, moral ambiguity, or irreversible loss (subtly, not overtly).
 - The ending may be ambiguous, fractured, or unresolved—like a whisper fading into nothing.
-- Do not explain or narrate clearly; keep the meaning unstable.
+- Avoid clear explanation; keep the meaning unstable.
 - Do not include names, dialogue, slang, or invented words.
-- Tone: drifting, fragile, derailed, poetically broken.
+- Tone: drifting, broken, ethically disoriented.
 - Total byte size must be under 280 (UTF-8).
 - Return only the sentence. No explanations.
 """.strip()
@@ -102,21 +103,22 @@ Now generate one short sentence as your internal monologue, inspired by the abst
                 print("⚠️ 英語生成が空文字。リトライ中...")
                 continue
 
-            # --- Translation prompt (ver.2.8)
+            # --- Translation prompt (ver.2.8) ---
             translate_prompt = f"""
 Translate the following English sentence into natural Japanese,  
 as if spoken alone by an 80-year-old Japanese woman living in a crumbling apartment in a noisy and indifferent city.
 
 [Instructions]
 - Output exactly one sentence.
-- Begin with a mundane observation or residue of memory (something seen, heard, touched, or a past mistake).
-- Let the sentence twist into contradiction, regret, emotional collapse, or quiet moral confusion.
-- If possible, include a subtle sense of poverty, abandonment, lies, or irreversible past mistakes.
-- Do not make the sentence beautiful or nostalgic. Let it remain broken, tired, or slightly off.
-- Avoid smoothing the structure; fractured expressions are allowed.
-- Do not use names, slang, or invented words.
-- Use endings like 「〜だわ」「〜ね」「〜かな」 if appropriate.
-- Total character count (excluding spaces) should be between 40–120 characters.
+- Begin with a mundane observation or memory residue (something seen, heard, touched, or a forgotten failure).
+- Let the sentence decay into guilt, contradiction, domestic dissonance, or ethical confusion.
+- If possible, allow poverty, family breakdown, or institutional mismatch (medicine, finance, bureaucracy) to subtly appear.
+- Do not beautify the sentence or make it lyrical. Leave it uneven, tired, or broken.
+- Avoid narrative clarity. Allow for stuttering logic or disjointed emotional phrasing.
+- Use proper grammar but permit internal disarray.
+- Endings like 「〜だわ」「〜かしら」「〜ね」 are acceptable.
+- Output must be 40–120 Japanese characters (excluding spaces).
+- Return only the sentence. No explanation.
 
 Here is the English sentence:
 {english_text}
