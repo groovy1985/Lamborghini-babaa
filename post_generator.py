@@ -65,12 +65,13 @@ def generate_babaa_post():
 
     for _ in range(max_attempts):
         try:
+            # --- English prompt (ver.2.8)
             en_prompt = f"""
 You are an 80-year-old Japanese woman living alone in a crumbling apartment block, tucked away in a noisy and indifferent city.
 
 Your days are shaped by loneliness, poverty, and a slow, persistent misalignment of everyday objects and thoughts.
 Your monologue begins with something trivial—a sound, a movement, a misplaced item, a personal failure, a lie from long ago, or a life that ended before it could begin—
-but it always unravels into contradiction, confusion, or quiet philosophical collapse.
+but it always unravels into contradiction, confusion, regret, or quiet philosophical collapse.
 
 Now generate one short sentence as your internal monologue, inspired by the abstract feeling of this keyword:
 "{keyword}"
@@ -101,6 +102,7 @@ Now generate one short sentence as your internal monologue, inspired by the abst
                 print("⚠️ 英語生成が空文字。リトライ中...")
                 continue
 
+            # --- Translation prompt (ver.2.8)
             translate_prompt = f"""
 Translate the following English sentence into natural Japanese,  
 as if spoken alone by an 80-year-old Japanese woman living in a crumbling apartment in a noisy and indifferent city.
@@ -108,12 +110,13 @@ as if spoken alone by an 80-year-old Japanese woman living in a crumbling apartm
 [Instructions]
 - Output exactly one sentence.
 - Begin with a mundane observation or residue of memory (something seen, heard, touched, or a past mistake).
-- Let the sentence twist into contradiction, philosophical confusion, emotional dislocation, or logical breakdown.
-- Do not make the sentence beautiful or poetic. Allow it to feel unstable, broken, or slightly absurd.
-- Avoid clarification, smoothing, or over-structuring the meaning.
+- Let the sentence twist into contradiction, regret, emotional collapse, or quiet moral confusion.
+- If possible, include a subtle sense of poverty, abandonment, lies, or irreversible past mistakes.
+- Do not make the sentence beautiful or nostalgic. Let it remain broken, tired, or slightly off.
+- Avoid smoothing the structure; fractured expressions are allowed.
 - Do not use names, slang, or invented words.
-- Accept endings that feel soft, disconnected, or uncertain (like 「〜だわ」「〜ね」「〜かな」).
-- Total character count (excluding spaces) should be between 40–120 Japanese characters.
+- Use endings like 「〜だわ」「〜ね」「〜かな」 if appropriate.
+- Total character count (excluding spaces) should be between 40–120 characters.
 
 Here is the English sentence:
 {english_text}
