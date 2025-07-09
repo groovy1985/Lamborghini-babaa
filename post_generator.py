@@ -40,7 +40,7 @@ def generate_abstracted_keyword(raw_keyword: str) -> str:
     prompt = f"""
 The word is: "{raw_keyword}"
 
-Imagine a 70-year-old Japanese woman reflecting on this word. Generate a short abstract expression in Japanese
+Imagine an 80-year-old Japanese woman reflecting on this word. Generate a short abstract expression in Japanese
 that captures its feeling or image. Do not invent new words; use only existing Japanese words.
 Return only the phrase, no explanation.
 """.strip()
@@ -66,27 +66,26 @@ def generate_babaa_post():
     for _ in range(max_attempts):
         try:
             en_prompt = f"""
-You are a 70-year-old Japanese woman living alone in a decaying apartment block somewhere deep in a modern city.
+You are an 80-year-old Japanese woman living alone in a crumbling apartment block, tucked away in a noisy and indifferent city.
 
-Each day is shaped by poverty, isolation, and small, almost imperceptible distortions in the world around you.
-Your monologue begins with something trivial or mundane—a sound, a gesture, a misplaced object—but always slips toward a quietly broken logic, a philosophical twist, or a surreal sense of collapse.
+Your days are shaped by loneliness, poverty, and a slow, persistent misalignment of everyday objects and thoughts.
+Your monologue begins with something trivial—a sound, a movement, a misplaced item, a personal failure, a lie from long ago, or a life that ended before it could begin—
+but it always unravels into contradiction, confusion, or quiet philosophical collapse.
 
-You are not loud, not angry—you speak in murmurs, in drifting thoughts, as if your voice could vanish mid-sentence.
-
-Now, generate one short English sentence as your internal monologue.
-It must be inspired by the abstract feeling of this keyword: "{keyword}"
-Do not mention the keyword directly.
+Now generate one short sentence as your internal monologue, inspired by the abstract feeling of this keyword:
+"{keyword}"
+(Do not mention the keyword directly.)
 
 [Instructions]
-- Write exactly one sentence.
-- Start with a mundane sensory observation (something seen, heard, felt).
-- Let the sentence bend into philosophical confusion, poetic absurdity, or quiet madness.
-- Do not explain or narrate clearly—let it remain ambiguous or incomplete.
-- Use no names, no dialogue, no slang, no invented words.
-- It should sound fragile, indirect, and strange.
-- Total byte size under 280 (UTF-8).
-
-Only return the sentence. No explanations.
+- Output exactly one sentence.
+- Begin with a mundane observation or a residue of memory (something seen, heard, touched, or a past mistake).
+- Let the sentence twist into contradiction, philosophical distortion, broken logic, or surreal collapse.
+- The ending may be ambiguous, fractured, or unresolved—like a whisper fading into nothing.
+- Do not explain or narrate clearly; keep the meaning unstable.
+- Do not include names, dialogue, slang, or invented words.
+- Tone: drifting, fragile, derailed, poetically broken.
+- Total byte size must be under 280 (UTF-8).
+- Return only the sentence. No explanations.
 """.strip()
 
             response = client.chat.completions.create(
@@ -103,17 +102,18 @@ Only return the sentence. No explanations.
                 continue
 
             translate_prompt = f"""
-Translate the following English sentence into natural Japanese, as if spoken by a 70-year-old Japanese woman
-living alone in a decaying apartment in Tokyo.
+Translate the following English sentence into natural Japanese,  
+as if spoken alone by an 80-year-old Japanese woman living in a crumbling apartment in a noisy and indifferent city.
 
 [Instructions]
 - Output exactly one sentence.
-- It must feel like a quiet, drifting monologue with a sense of philosophical confusion, poverty, or emotional collapse.
-- Use abstract imagery or broken logic if needed.
-- Avoid clear explanations; let the meaning remain vague or impressionistic.
-- Avoid invented words, place names, or slang.
-- Gentle endings like 「〜だわ」「〜ね」「〜かな」 can be used if appropriate.
-- Length should be 40–120 Japanese characters (excluding spaces).
+- Begin with a mundane observation or residue of memory (something seen, heard, touched, or a past mistake).
+- Let the sentence twist into contradiction, philosophical confusion, emotional dislocation, or logical breakdown.
+- Do not make the sentence beautiful or poetic. Allow it to feel unstable, broken, or slightly absurd.
+- Avoid clarification, smoothing, or over-structuring the meaning.
+- Do not use names, slang, or invented words.
+- Accept endings that feel soft, disconnected, or uncertain (like 「〜だわ」「〜ね」「〜かな」).
+- Total character count (excluding spaces) should be between 40–120 Japanese characters.
 
 Here is the English sentence:
 {english_text}
