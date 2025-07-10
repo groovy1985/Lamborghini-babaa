@@ -61,82 +61,71 @@ def generate_babaa_post():
 
     raw_keyword = get_top_trend_word()
     keyword = generate_abstracted_keyword(raw_keyword)
-    max_attempts = 12
+    max_attempts = 10
 
     for _ in range(max_attempts):
         try:
-            # --- 英語生成プロンプト（ver.3.1）---
+            # --- 英語生成プロンプト（ver.3.3-condensed）---
             en_prompt = f"""
-You are an 80-year-old Japanese woman living alone in a crumbling apartment building, tucked away in a noisy and indifferent city.
+You are an 80-year-old Japanese woman living in a crumbling housing complex.
 
-Your days are shaped by poverty, loneliness, family disintegration, and small domestic failures that no longer surprise you.
-
-Speak to yourself.
-
-Your monologue should begin from something fragile, failing, or slightly out of place—a noise that won’t stop, a drawer that doesn’t close, a lie you once told, or a memory too worn to recall.
-
-Let the sentence quietly twist—not into clarity, but into moral fatigue, broken logic, unresolved guilt, or a kind of philosophical collapse.
-
-Avoid analysis. Avoid observation. This is not about thinking—it’s about drifting through what cannot be fixed.
+Write one grammatically correct sentence, inspired by:
+"{keyword}"
 
 [Instructions]
-- Output exactly one sentence.
-- Start from a mundane or decaying detail, then twist into confusion, regret, or quiet despair.
-- The sentence may end uncertainly, or with a vague emotion like “maybe,” “still,” or “somehow.”
-- Do not use names, dialogue, invented words, or slang.
-- Do not explain anything. Leave the meaning open.
-- Keep the sentence under 280 bytes (UTF-8).
-- Return only the sentence. No explanations.
+- Start with a sensory cue (smell, pain, texture).
+- Include a strange metaphor from daily life (medicine, food, loss).
+- Let the meaning feel fractured, burdened, or ethically off.
+- Let grief or exhaustion leak through. Don’t explain.
+- No names, slang, or poetry.
+- Output one sentence only.
 """.strip()
 
             response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": en_prompt}],
-                temperature=1.1,
+                temperature=1.2,
                 timeout=10,
             )
             english_text = response.choices[0].message.content.strip()
-            print(f"[英語生成] {english_text}")
+            print(f"[EN] {english_text}")
 
             if not english_text or len(english_text.strip()) == 0:
                 print("[警告] 英語生成が空文字。リトライ中...")
                 continue
 
-            # ✅ バイト制限チェック（280 bytes 以下）
             if len(english_text.encode("utf-8")) > 280:
-                print(f"[警告] 英文がバイト数制限超過（{len(english_text.encode('utf-8'))} bytes）")
+                print(f"[警告] 英文バイト数オーバー: {len(english_text.encode('utf-8'))} bytes")
                 continue
 
-            # --- 翻訳プロンプト（ver.3.1）---
+            # --- 翻訳プロンプト（ver.3.3-condensed）---
             translate_prompt = f"""
-Translate the following English sentence into natural Japanese, as if spoken alone by an 80-year-old Japanese woman living in a crumbling apartment building in a noisy and indifferent city.
+以下の英文を、80歳の女性の自然な独白として翻訳してください。
 
-[Instructions]
-- Output exactly one sentence.
-- Begin with something fragile, failing, or slightly wrong (a broken drawer, a faded memory, a noise, a habit).
-- Let the sentence turn inward—toward moral exhaustion, social failure, quiet confusion, or a feeling of disrepair.
-- You may include poverty, estranged family, institutional phrases, or forgotten responsibilities.
-- Do not make the sentence poetic or polished.
-- Allow grammatical distortions or fragmentation if they feel real.
-- Avoid names, slang, or beautified nostalgia.
-- Use natural sentence endings like 「〜だわ」「〜ね」「〜かしら」「〜のよ」 when appropriate.
-- Character count (excluding spaces) should be 40–120 Japanese characters.
+・出力は1文のみ、20〜100文字。
+・必ず「{keyword}」を含めてください。
+・冒頭は感覚的な発端で。
+・語尾はババァ的に（〜のよ、〜だわ 等）。
+・意味が壊れたままでも構いません。
+・構文に、説明できない嘆きや疲れを滲ませてください。
+・詩的にせず、生活の裂け目から漏れた言葉にしてください。
+・記号・装飾は不要です。
 
-Here is the English sentence:
+英文:
 {english_text}
 """.strip()
 
             translation = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": translate_prompt}],
-                temperature=0.9,
+                temperature=1.0,
                 timeout=15,
             )
             japanese_text = translation.choices[0].message.content.strip()
-            print(f"[日本語翻訳] {japanese_text}")
+            print(f"[JP] {japanese_text}")
 
             text_len = len(re.sub(r'\s', '', japanese_text))
-            if 40 <= text_len <= 120:
+            if 20 <= text_len <= 100:
                 increment_daily_count()
                 return {
                     "text": japanese_text,
@@ -145,12 +134,12 @@ Here is the English sentence:
                     "timestamp": datetime.now().isoformat()
                 }
 
-            print(f"[警告] 文字数不一致: {text_len}文字")
+            print(f"[警告] 長さ不適合（{text_len}文字）")
             time.sleep(1)
 
         except Exception as e:
-            print(f"[エラー] API通信エラー: {e}")
+            print(f"[ERROR] API通信エラー: {e}")
             time.sleep(2)
 
-    print("[失敗] 全試行で有効なテキスト生成に失敗")
+    print("[FAILED] 全試行失敗：投稿スキップ")
     return {"text": "", "reason": "すべての試行で有効なテキスト生成に失敗"}
