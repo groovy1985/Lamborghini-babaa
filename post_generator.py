@@ -52,20 +52,20 @@ Return only the phrase, no explanation.
         timeout=5,
     )
     abstracted = response.choices[0].message.content.strip()
-    print(f"[KEYWORD] {raw_keyword} → {abstracted}")
+    print(f"[キーワード抽象化] {raw_keyword} → {abstracted}")
     return abstracted
 
 def generate_babaa_post():
     if not check_daily_limit():
         return None
 
-    raw_keyword = get_top_trend_word()[:10]
+    raw_keyword = get_top_trend_word()
     keyword = generate_abstracted_keyword(raw_keyword)
     max_attempts = 12
 
     for _ in range(max_attempts):
         try:
-            # --- English prompt (ver.3.0) ---
+            # --- 英語生成プロンプト（ver.3.1）---
             en_prompt = f"""
 You are an 80-year-old Japanese woman living alone in a crumbling apartment building, tucked away in a noisy and indifferent city.
 
@@ -96,16 +96,20 @@ Avoid analysis. Avoid observation. This is not about thinking—it’s about dri
                 timeout=10,
             )
             english_text = response.choices[0].message.content.strip()
-            print(f"[EN] {english_text}")
+            print(f"[英語生成] {english_text}")
 
             if not english_text or len(english_text.strip()) == 0:
-                print("⚠️ 英語生成が空文字。リトライ中...")
+                print("[警告] 英語生成が空文字。リトライ中...")
                 continue
 
-            # --- Translation prompt (ver.3.0) ---
+            # ✅ バイト制限チェック（280 bytes 以下）
+            if len(english_text.encode("utf-8")) > 280:
+                print(f"[警告] 英文がバイト数制限超過（{len(english_text.encode('utf-8'))} bytes）")
+                continue
+
+            # --- 翻訳プロンプト（ver.3.1）---
             translate_prompt = f"""
-Translate the following English sentence into natural Japanese,  
-as if spoken alone by an 80-year-old Japanese woman living in a crumbling apartment building in a noisy and indifferent city.
+Translate the following English sentence into natural Japanese, as if spoken alone by an 80-year-old Japanese woman living in a crumbling apartment building in a noisy and indifferent city.
 
 [Instructions]
 - Output exactly one sentence.
@@ -129,7 +133,7 @@ Here is the English sentence:
                 timeout=15,
             )
             japanese_text = translation.choices[0].message.content.strip()
-            print(f"[JP] {japanese_text}")
+            print(f"[日本語翻訳] {japanese_text}")
 
             text_len = len(re.sub(r'\s', '', japanese_text))
             if 40 <= text_len <= 120:
@@ -141,12 +145,12 @@ Here is the English sentence:
                     "timestamp": datetime.now().isoformat()
                 }
 
-            print(f"[WARN] Length mismatch: text_len={text_len}")
+            print(f"[警告] 文字数不一致: {text_len}文字")
             time.sleep(1)
 
         except Exception as e:
-            print(f"[ERROR] API error: {e}")
+            print(f"[エラー] API通信エラー: {e}")
             time.sleep(2)
 
-    print("[FAILED] All attempts failed: skipping post")
+    print("[失敗] 全試行で有効なテキスト生成に失敗")
     return {"text": "", "reason": "すべての試行で有効なテキスト生成に失敗"}
